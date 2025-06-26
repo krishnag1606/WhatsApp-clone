@@ -1,0 +1,28 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.message {
+  padding: 6px 12px;
+  color: white;
+}
+
+.sent {
+  align-self: flex-end;
+  background-color: #015c4b;
+  margin: 4px;
+  max-width: 60%;
+  word-break: break-word;
+  border-radius: 8px;
+  font-size: 14px;
+}
+.received {
+  align-self: flex-start;
+  background-color: #1f2c33;
+  margin: 4px;
+  max-width: 60%;
+  word-break: break-word;
+  border-radius: 8px;
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
+  "rushVersion": "5.141.1",
+  "pnpmVersion": "9.14.2",
+  "nodeSupportedVersionRange": ">=18.20.3 <19.0.0 || >=20.14.0 <21.0.0",
+  "gitPolicy": {},
+
+  "repository": {},
+  "eventHooks": {
+    "preRushInstall": [],
+    "postRushInstall": [],
+    "preRushBuild": [],
+    "postRushBuild": [],
+    "preRushx": [],
+    "postRushx": []
+  },
+  "variants": [],
+  "projects": [
+    {
+      "packageName": "client-ui",
+      "projectFolder": "apps/client-ui"
+    },
+    {
+      "packageName": "@common/shared",
+      "projectFolder": "libs/shared"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+.container {
+  background-color: #212e35;
+  width: 68%;
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    width: 92%;
+  }
+}

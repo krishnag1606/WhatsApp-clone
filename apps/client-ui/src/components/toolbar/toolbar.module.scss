@@ -1,0 +1,44 @@
+.wrapper {
+  height: 100%;
+  width: 4%;
+  min-width: 60px;
+  background-color: #1f2c33;
+  border-right: 1px solid rgba(204, 204, 204, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 18px 0;
+  justify-content: space-between;
+}
+
+.iconContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+button {
+  background-color: transparent;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+}
+
+.icon {
+  background-color: #374247;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.profilePicture {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}

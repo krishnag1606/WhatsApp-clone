@@ -1,0 +1,12 @@
+.wrapper {
+  background-image: url(../../assets/bg.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: calc(100vh - 120px - calc(100vh * 0.05));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 20px;
+}
