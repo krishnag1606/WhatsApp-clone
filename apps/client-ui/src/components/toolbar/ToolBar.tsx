@@ -52,13 +52,6 @@ const ToolBar = () => {
           alt="Profile picture"
         />
       )}
-
-      {/* <img
-        onClick={handleProfileClick}
-        className={styles.profilePicture}
-        src={`https://lh3.googleusercontent.com/a/ACg8ocI3utg5ppH18592-WF3IYkBATpwsobcQw_roovCE36tIQM7QIg=s96-c`}
-        alt="Profile picture"
-      /> */}
     </div>
   );
 };
