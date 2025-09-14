@@ -51,7 +51,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendMessage", (data) => {
-    console.log("💬 Sending message from:", data.senderId, "to:", data.receiverId);
+    console.log("Sending message from:", data.senderId, "to:", data.receiverId);
     const user = getUser(data.receiverId);
     if (user?.socketId) {
       io.to(user.socketId).emit("getMessage", data);
@@ -62,7 +62,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("🔌 Socket disconnected:", socket.id);
+    console.log("Socket disconnected:", socket.id);
     // Remove user from active users list
     const userIndex = users.findIndex(user => user.socketId === socket.id);
     if (userIndex !== -1) {
