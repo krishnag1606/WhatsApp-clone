@@ -12,7 +12,10 @@ const ChatWrapper = () => {
   const socket = useRef<ReturnType<typeof io>>();
 
   React.useEffect(() => {
-    socket.current = io("ws://localhost:9000");
+    // TODO: Update this URL to match your socket server
+    // You can also use environment variables: process.env.REACT_APP_SOCKET_URL
+    const socketUrl = process.env.REACT_APP_SOCKET_URL || "ws://localhost:9000";
+    socket.current = io(socketUrl);
     setSocket(socket);
   }, []);
 

@@ -1,7 +1,9 @@
 import { Api } from "@common/shared";
 import { IConversation, IMessage } from "../../store";
 
-const url = "http://localhost:8000";
+// TODO: Update this URL to match your backend server
+// You can also use environment variables: process.env.REACT_APP_API_BASE_URL
+const url = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
 
 export interface IConversationResponse {
   createdAt: string;
