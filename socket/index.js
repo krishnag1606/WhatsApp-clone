@@ -45,7 +45,7 @@ io.on("connection", (socket) => {
   console.log("🔌 New socket connection:", socket.id);
 
   socket.on("addUsers", (userData) => {
-    console.log("👤 Adding user:", userData?.given_name);
+    console.log("Adding user:", userData?.given_name);
     addUser(userData, socket.id);
     io.emit("getUsers", users);
   });
