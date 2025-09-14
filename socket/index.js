@@ -55,9 +55,9 @@ io.on("connection", (socket) => {
     const user = getUser(data.receiverId);
     if (user?.socketId) {
       io.to(user.socketId).emit("getMessage", data);
-      console.log("✅ Message delivered to:", user.given_name);
+      console.log("Message delivered to:", user.given_name);
     } else {
-      console.log("❌ User not found or offline:", data.receiverId);
+      console.log("User not found or offline:", data.receiverId);
     }
   });
 
@@ -66,12 +66,12 @@ io.on("connection", (socket) => {
     // Remove user from active users list
     const userIndex = users.findIndex(user => user.socketId === socket.id);
     if (userIndex !== -1) {
-      console.log("👤 Removing user:", users[userIndex].given_name);
+      console.log("Removing user:", users[userIndex].given_name);
       users.splice(userIndex, 1);
       io.emit("getUsers", users);
     }
   });
 });
 
-console.log("🚀 Socket.IO server running on port 9000");
-console.log("📡 Accepting connections from frontend");
+console.log("Socket.IO server running on port 9000");
+console.log("Accepting connections from frontend");
