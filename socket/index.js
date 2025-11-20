@@ -1,7 +1,5 @@
 import { Server } from "socket.io";
 
-// TODO: Update CORS origins for production
-// Add your frontend domain to the origin array
 const io = new Server(9000, {
   cors: {
     origin: [
