@@ -3,11 +3,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// TODO: Set up your MongoDB Atlas credentials
-// 1. Create account at https://www.mongodb.com/cloud/atlas
-// 2. Create a new cluster
-// 3. Create a database user
-// 4. Get connection string and update .env file
 const USERNAME = process.env.DB_USERNAME;
 const PASSWORD = process.env.DB_PASSWORD;
 
