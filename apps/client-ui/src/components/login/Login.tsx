@@ -41,7 +41,7 @@ const LoginPage: React.FC = () => {
         </div>
         <div style={{ fontSize: '12px', color: '#666', textAlign: 'center' }}>
           {/* TODO: Update this message based on your setup */}
-          Make sure your backend server is running on port 8000
+          running on port 8000
         </div>
         <hr />
         <GoogleLogin
