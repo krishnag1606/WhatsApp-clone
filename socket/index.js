@@ -2,8 +2,12 @@ import { Server } from "socket.io";
 
 const io = new Server(9000, {
   cors: {
-    // allow http://127.0.0.1:3000 and locahost:3000
-    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+    origin: [
+      "http://localhost:3000", 
+      "http://127.0.0.1:3000",
+      process.env.FRONTEND_URL
+    ].filter(Boolean),
+    credentials: true
   },
 });
 
@@ -36,17 +40,34 @@ const getUser = (userId) => {
 };
 
 io.on("connection", (socket) => {
-  console.log("new connection", socket.id);
+  console.log("🔌 New socket connection:", socket.id);
 
   socket.on("addUsers", (userData) => {
+    console.log("Adding user:", userData?.given_name);
     addUser(userData, socket.id);
     io.emit("getUsers", users);
   });
 
   socket.on("sendMessage", (data) => {
-    console.log("sendMessage", data);
+    console.log("Sending message from:", data.senderId, "to:", data.receiverId);
     const user = getUser(data.receiverId);
-    io.to(user?.socketId).emit("getMessage", data);
+    if (user?.socketId) {
+      io.to(user.socketId).emit("getMessage", data);
+      console.log("Message delivered to:", user.given_name);
+    } else {
+      console.log("User not found or offline:", data.receiverId);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected:", socket.id);
+    // Remove user from active users list
+    const userIndex = users.findIndex(user => user.socketId === socket.id);
+    if (userIndex !== -1) {
+      console.log("Removing user:", users[userIndex].given_name);
+      users.splice(userIndex, 1);
+      io.emit("getUsers", users);
+    }
   });
 
   socket.on("disconnect", () => {
@@ -58,3 +79,6 @@ io.on("connection", (socket) => {
     console.log("user disconnected", socket.id);
   });
 });
+
+console.log("Socket.IO server running on port 9000");
+console.log("Accepting connections from frontend");
