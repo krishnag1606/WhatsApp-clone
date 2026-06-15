@@ -12,8 +12,11 @@ const ChatWrapper = () => {
   const socket = useRef<ReturnType<typeof io>>();
 
   React.useEffect(() => {
-    socket.current = io("ws://localhost:9000");
+    socket.current = io("http://localhost:9000");
     setSocket(socket);
+    return () => {
+      socket.current?.disconnect();
+    };
   }, []);
 
   return <>{credentials ? <ChatContainer /> : <LoginPage />}</>;

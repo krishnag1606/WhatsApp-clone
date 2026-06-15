@@ -40,19 +40,17 @@ const Messages = () => {
 
   return (
     <div className={styles.wrapper}>
-      {messages.map((message, index) => (
-        <>
-          {message.senderId === credentials?.sub ? (
-            <div className={styles.sent} key={index}>
-              <Message type="SENT" message={message} />
-            </div>
-          ) : (
-            <div className={styles.received} key={index}>
-              <Message type="RECEIVED" message={message} />
-            </div>
-          )}
-        </>
-      ))}
+      {messages.map((message, index) =>
+        message.senderId === credentials?.sub ? (
+          <div className={styles.sent} key={index}>
+            <Message type="SENT" message={message} />
+          </div>
+        ) : (
+          <div className={styles.received} key={index}>
+            <Message type="RECEIVED" message={message} />
+          </div>
+        )
+      )}
     </div>
   );
 };

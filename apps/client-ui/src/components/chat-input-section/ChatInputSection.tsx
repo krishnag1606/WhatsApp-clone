@@ -3,10 +3,8 @@ import styles from "./chat-input-section.module.scss";
 import { FiPlus } from "react-icons/fi";
 import { BsEmojiLaughing } from "react-icons/bs";
 import { FaMicrophone } from "react-icons/fa";
-import { platform } from "os";
 import { useStore } from "../../store/store";
 import { IMessage, IStore } from "../../store";
-import { send } from "process";
 import { conversationService } from "../../services/conversion/ConversationService";
 
 const ChatInputSection = () => {

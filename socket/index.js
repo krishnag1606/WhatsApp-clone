@@ -48,4 +48,13 @@ io.on("connection", (socket) => {
     const user = getUser(data.receiverId);
     io.to(user?.socketId).emit("getMessage", data);
   });
+
+  socket.on("disconnect", () => {
+    const index = users.findIndex((user) => user.socketId === socket.id);
+    if (index !== -1) {
+      users.splice(index, 1);
+    }
+    io.emit("getUsers", users);
+    console.log("user disconnected", socket.id);
+  });
 });
