@@ -67,7 +67,11 @@ const ChannelView: React.FC = () => {
       </header>
 
       <MessageList messages={messages} loading={loading} />
-      <MessageInput channelId={channelId} channelName={channel?.name} />
+      <MessageInput
+        channelId={channelId}
+        channelName={channel?.name}
+        channelType={channel?.type}
+      />
     </div>
   );
 };

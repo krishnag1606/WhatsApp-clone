@@ -13,6 +13,8 @@ import {
 // Phase 1 community-model controllers + middleware.
 import { requireAuth } from "../middleware/auth.js";
 import { requireMembership } from "../middleware/membership.js";
+import { requirePermission } from "../middleware/permission.js";
+import { Permissions } from "../constants/permissions.js";
 import { googleAuth, getMe } from "../controller/auth-controller.js";
 import {
   createCommunity,
@@ -28,6 +30,18 @@ import {
   addMessage,
   getMessages,
 } from "../controller/message-controller.js";
+// Phase 4 — roles & permissions.
+import {
+  getRoles,
+  createRole,
+  updateRole,
+  deleteRole,
+} from "../controller/role-controller.js";
+import {
+  getMembers,
+  getMyMembership,
+  setMemberRoles,
+} from "../controller/member-controller.js";
 
 const route = express.Router();
 
@@ -48,11 +62,61 @@ route.get("/api/communities", requireAuth, getMyCommunities);
 route.post("/api/communities/join", requireAuth, joinCommunity);
 route.get("/api/communities/:communityId", requireAuth, requireMembership, getCommunity);
 
+/* ----------------------- Roles & members (Phase 4) --------------------- */
+route.get(
+  "/api/communities/:communityId/me",
+  requireAuth,
+  requireMembership,
+  getMyMembership
+);
+route.get(
+  "/api/communities/:communityId/members",
+  requireAuth,
+  requireMembership,
+  getMembers
+);
+route.put(
+  "/api/communities/:communityId/members/:userId/roles",
+  requireAuth,
+  requireMembership,
+  requirePermission(Permissions.MANAGE_ROLES),
+  setMemberRoles
+);
+
+route.get(
+  "/api/communities/:communityId/roles",
+  requireAuth,
+  requireMembership,
+  getRoles
+);
+route.post(
+  "/api/communities/:communityId/roles",
+  requireAuth,
+  requireMembership,
+  requirePermission(Permissions.MANAGE_ROLES),
+  createRole
+);
+route.put(
+  "/api/communities/:communityId/roles/:roleId",
+  requireAuth,
+  requireMembership,
+  requirePermission(Permissions.MANAGE_ROLES),
+  updateRole
+);
+route.delete(
+  "/api/communities/:communityId/roles/:roleId",
+  requireAuth,
+  requireMembership,
+  requirePermission(Permissions.MANAGE_ROLES),
+  deleteRole
+);
+
 /* ------------------------------- Channels ------------------------------ */
 route.post(
   "/api/communities/:communityId/channels",
   requireAuth,
   requireMembership,
+  requirePermission(Permissions.MANAGE_CHANNELS),
   createChannel
 );
 route.get(

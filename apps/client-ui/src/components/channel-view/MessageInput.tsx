@@ -3,25 +3,41 @@ import styles from "./channel-view.module.scss";
 import { useStore } from "../../store/store";
 import { messageService } from "../../services/MessageService";
 import { sendMessage as socketSend } from "../../services/socketService";
+import { ChannelType } from "../../store/IStore";
+import { Permissions, hasPermission } from "../../constants/permissions";
 import { PixelButton } from "../../ui";
 
 interface MessageInputProps {
   channelId: string;
   channelName?: string;
+  channelType?: ChannelType;
 }
 
 // Sends live over the socket; the server persists + broadcasts back (handled in
 // ChannelView), so there's nothing to append here. Falls back to REST if the
-// socket isn't connected, appending the returned message directly.
-const MessageInput: React.FC<MessageInputProps> = ({ channelId, channelName }) => {
+// socket isn't connected, appending the returned message directly. The input is
+// disabled when the caller lacks the channel's posting permission (the server
+// enforces the same gate authoritatively).
+const MessageInput: React.FC<MessageInputProps> = ({
+  channelId,
+  channelName,
+  channelType,
+}) => {
   const [text, setText] = React.useState("");
   const [sending, setSending] = React.useState(false);
   const addMessage = useStore((s) => s.addMessage);
+  const myPermissions = useStore((s) => s.myPermissions);
+
+  const requiredFlag =
+    channelType === "announcement"
+      ? Permissions.POST_ANNOUNCEMENTS
+      : Permissions.SEND_MESSAGES;
+  const canSend = hasPermission(myPermissions, requiredFlag);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = text.trim();
-    if (!trimmed || sending) return;
+    if (!trimmed || sending || !canSend) return;
 
     if (socketSend(channelId, trimmed)) {
       setText("");
@@ -47,10 +63,22 @@ const MessageInput: React.FC<MessageInputProps> = ({ channelId, channelName }) =
         className={styles.input}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder={`Message #${channelName ?? "channel"}`}
+        placeholder={
+          canSend
+            ? `Message #${channelName ?? "channel"}`
+            : channelType === "announcement"
+            ? "You can't post in this announcement channel"
+            : "You don't have permission to send messages here"
+        }
         aria-label="Message"
+        disabled={!canSend}
       />
-      <PixelButton type="submit" variant="primary" size="md" disabled={sending}>
+      <PixelButton
+        type="submit"
+        variant="primary"
+        size="md"
+        disabled={sending || !canSend}
+      >
         {sending ? "…" : "Send"}
       </PixelButton>
     </form>
