@@ -1,65 +1,71 @@
-export interface ICredentials {
-  aud: string; // Audience ID
-  azp: string; // Authorized party ID
-  email: string; // User's email
-  email_verified: boolean; // Whether the email is verified
-  exp: number; // Expiration time (UNIX timestamp)
-  family_name: string; // User's last name
-  given_name: string; // User's first name
-  iat: number; // Issued at time (UNIX timestamp)
-  iss: string; // Issuer
-  jti: string; // Token ID
-  name: string; // Full name
-  nbf: number; // Not before time (UNIX timestamp)
-  picture: string; // URL to the user's profile picture
-  sub: string; // Subject ID (unique identifier for the user)
+// Domain types mirror the Phase 1 backend shapes (server/model/*).
+
+export interface IUser {
+  _id: string; // Google sub
+  name: string;
+  email: string;
+  picture?: string;
+}
+
+export interface ICommunity {
+  _id: string;
+  name: string;
+  icon?: string;
+  ownerId: string;
+  inviteCode: string;
+  createdAt?: string;
+}
+
+export type ChannelType = "text" | "announcement";
+
+export interface IChannel {
+  _id: string;
+  communityId: string;
+  name: string;
+  type: ChannelType;
+  position: number;
+}
+
+// Decrypted message view returned by GET /api/channels/:id/messages.
+export interface IMessage {
+  _id: string;
+  channelId: string;
+  authorId: string;
+  text: string | null;
+  type: string;
+  pinned?: boolean;
+  createdAt: string;
+  editedAt?: string;
 }
 
 export interface IStore {
-  // Credentials of the user
-  credentials: ICredentials | null;
-  setCredentials: (newCredentials: any) => void;
+  // Session
+  token: string | null;
+  setToken: (token: string | null) => void;
+  currentUser: IUser | null;
+  setCurrentUser: (user: IUser | null) => void;
 
-  // Whether the profile view is open
-  profileView: boolean;
-  setProfileView: (profileView: boolean) => void;
+  // Communities + active selection
+  communities: ICommunity[];
+  setCommunities: (communities: ICommunity[]) => void;
+  activeCommunityId: string | null;
+  setActiveCommunityId: (id: string | null) => void;
 
-  // List of all the users
-  users: ICredentials[];
-  setUsers: (users: ICredentials[]) => void;
+  // Channels of the active community
+  channels: IChannel[];
+  setChannels: (channels: IChannel[]) => void;
+  activeChannelId: string | null;
+  setActiveChannelId: (id: string | null) => void;
 
-  // Selected Chat
-  selectedChat: ICredentials | null;
-  setSelectedChat: (selectedChat: ICredentials | null) => void;
-
-  // Conversation
-  conversation: IConversation | null;
-  setConversation: (conversation: IConversation | null) => void;
-
-  // Messages
+  // Messages of the active channel
   messages: IMessage[];
   setMessages: (messages: IMessage[]) => void;
+  addMessage: (message: IMessage) => void;
 
-  // Socket
+  // Socket (wired for real-time in Phase 3)
   socket: any;
   setSocket: (socket: any) => void;
 
-  // Set active users
-  activeUsers: ICredentials[];
-  setActiveUsers: (activeUsers: ICredentials[]) => void;
-}
-
-export interface IConversation {
-  senderId: string;
-  receiverId: string;
-  conversationId: string | null;
-}
-
-export interface IMessage {
-  senderId: string;
-  receiverId: string;
-  conversationId: string;
-  text: string;
-  type: string;
-  createdAt?: string;
+  // Reset everything on logout
+  reset: () => void;
 }

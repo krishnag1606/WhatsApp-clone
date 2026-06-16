@@ -1,38 +1,46 @@
 import { create } from "zustand";
-import { ICredentials, IStore, IConversation } from "./IStore";
+import { IStore, IUser, ICommunity, IChannel, IMessage } from "./IStore";
+import { getToken } from "../services/apiClient";
 
 export const useStore = create<IStore>((set) => ({
-  credentials: null,
-  setCredentials: (newCredentials: any) =>
-    set((state: IStore) => ({ credentials: newCredentials })),
+  // Session — token is hydrated from localStorage so refreshes stay logged in.
+  token: getToken(),
+  setToken: (token: string | null) => set({ token }),
+  currentUser: null,
+  setCurrentUser: (currentUser: IUser | null) => set({ currentUser }),
 
-  profileView: false,
-  setProfileView: (profileView: boolean) =>
-    set((state: IStore) => ({ profileView })),
+  // Communities
+  communities: [],
+  setCommunities: (communities: ICommunity[]) => set({ communities }),
+  activeCommunityId: null,
+  setActiveCommunityId: (activeCommunityId: string | null) =>
+    set({ activeCommunityId }),
 
-  users: [],
-  setUsers: (users: ICredentials[]) => set((state: IStore) => ({ users })),
-
-  // Selected chat
-  selectedChat: null,
-  setSelectedChat: (selectedChat: ICredentials | null) =>
-    set((state: IStore) => ({ selectedChat })),
-
-  // Conversation
-  conversation: null,
-  setConversation: (conversation: IConversation | null) =>
-    set((state: IStore) => ({ conversation })),
+  // Channels
+  channels: [],
+  setChannels: (channels: IChannel[]) => set({ channels }),
+  activeChannelId: null,
+  setActiveChannelId: (activeChannelId: string | null) =>
+    set({ activeChannelId }),
 
   // Messages
   messages: [],
-  setMessages: (messages: any[]) => set((state: IStore) => ({ messages })),
+  setMessages: (messages: IMessage[]) => set({ messages }),
+  addMessage: (message: IMessage) =>
+    set((state) => ({ messages: [...state.messages, message] })),
 
-  // socket
+  // Socket (Phase 3)
   socket: null,
-  setSocket: (socket: any) => set((state: IStore) => ({ socket })),
+  setSocket: (socket: any) => set({ socket }),
 
-  // Active users
-  activeUsers: [],
-  setActiveUsers: (activeUsers: ICredentials[]) =>
-    set((state: IStore) => ({ activeUsers })),
+  reset: () =>
+    set({
+      currentUser: null,
+      token: null,
+      communities: [],
+      activeCommunityId: null,
+      channels: [],
+      activeChannelId: null,
+      messages: [],
+    }),
 }));

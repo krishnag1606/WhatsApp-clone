@@ -1,0 +1,17 @@
+@use '../../styles/tokens' as *;
+
+.shell {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: $color-bg-base;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: $color-bg-surface;
+}

@@ -1,0 +1,53 @@
+@use '../../styles/tokens' as *;
+
+.rail {
+  width: 72px;
+  flex-shrink: 0;
+  background: $color-bg-base;
+  border-right: $border-base;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: $space-3 0;
+  gap: $space-3;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+  overflow-y: auto;
+  align-items: center;
+}
+
+.tile {
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  font-family: $font-display;
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  background: $color-bg-elevated;
+  border: $border-thin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition-base;
+
+  &:hover {
+    box-shadow: $glow-primary;
+  }
+}
+
+.active {
+  border-color: $color-secondary;
+  box-shadow: $glow-secondary;
+  color: $color-secondary;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}

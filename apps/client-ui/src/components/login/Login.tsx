@@ -1,21 +1,22 @@
 import React from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import styles from "./login.module.scss";
-import { jwtDecode } from "jwt-decode";
 import { useStore } from "../../store/store";
-import { ICredentials, IStore } from "../../store";
-import { AddUserService } from "../../services/add-user/AddUserService";
+import { IStore } from "../../store";
+import { authService } from "../../services/AuthService";
 import { PixelCard } from "../../ui";
 
 const LoginPage: React.FC = () => {
-  const setCredentials = useStore((state: IStore) => state.setCredentials);
+  const setCurrentUser = useStore((state: IStore) => state.setCurrentUser);
+  const setToken = useStore((state: IStore) => state.setToken);
 
   const handleLoginSuccess = async (response: any) => {
     try {
-      const decodedToken: ICredentials = jwtDecode(response?.credential);
-      setCredentials(decodedToken);
-      const addUserService = new AddUserService();
-      await addUserService.addUser(decodedToken);
+      // Server-verified login: the backend validates the Google credential
+      // and returns a Flux session JWT + the canonical user.
+      const { token, user } = await authService.googleAuth(response?.credential);
+      setToken(token);
+      setCurrentUser(user);
     } catch (error) {
       console.error("Login error:", error);
     }
@@ -23,7 +24,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <PixelCard title="FLUX // MESSENGER" variant="primary">
+      <PixelCard title="FLUX // COMMUNITIES" variant="primary">
         <div className={styles.inner}>
           <div className={styles.logoMark} aria-hidden="true">
             <span className={styles.logoF}>F</span>
@@ -35,7 +36,7 @@ const LoginPage: React.FC = () => {
           <h1 className={styles.title}>Log into Flux</h1>
 
           <p className={styles.subtitle}>
-            Message privately with friends and family using Flux on your browser.
+            Create communities, hang out in channels, and chat with your crew.
           </p>
 
           <hr className={styles.divider} />

@@ -1,0 +1,102 @@
+@use '../../styles/tokens' as *;
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: $color-bg-surface;
+  border-right: $border-base;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  font-family: $font-display;
+  font-size: $font-size-xs;
+  color: $color-primary;
+  padding: $space-4 $space-3;
+  border-bottom: $border-thin;
+  line-height: $line-height-display;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.channels {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space-2;
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+}
+
+.channel {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: $font-body;
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+  background: transparent;
+  border: $border-width-thin solid transparent;
+  padding: $space-2 $space-3;
+  transition: $transition-base;
+
+  &:hover {
+    color: $color-text-primary;
+    border-color: $color-border-dim;
+  }
+}
+
+.hash {
+  color: $color-text-muted;
+}
+
+.active {
+  color: $color-secondary;
+  border-color: $color-secondary;
+  background: $color-bg-elevated;
+}
+
+.addChannel {
+  cursor: pointer;
+  font-family: $font-body;
+  font-size: $font-size-base;
+  color: $color-success;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: $space-2 $space-3;
+
+  &:hover {
+    text-shadow: 0 0 8px $color-success;
+  }
+}
+
+.empty {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  padding: $space-3;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+  padding: $space-3;
+  border-top: $border-thin;
+}
+
+.userName {
+  font-family: $font-body;
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

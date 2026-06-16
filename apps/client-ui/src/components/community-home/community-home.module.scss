@@ -1,0 +1,30 @@
+@use '../../styles/tokens' as *;
+
+.container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-6;
+}
+
+.inner {
+  padding: $space-4;
+  max-width: 480px;
+}
+
+.title {
+  font-family: $font-display;
+  font-size: $font-size-lg;
+  color: $color-secondary;
+  line-height: $line-height-display;
+  margin: 0 0 $space-4;
+}
+
+.subtitle {
+  font-family: $font-body;
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+  line-height: $line-height-body;
+  margin: 0;
+}

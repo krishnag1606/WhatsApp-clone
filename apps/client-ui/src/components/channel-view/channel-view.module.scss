@@ -1,0 +1,125 @@
+@use '../../styles/tokens' as *;
+
+.view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-4 $space-4;
+  border-bottom: $border-base;
+  font-family: $font-display;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.hash {
+  color: $color-text-muted;
+}
+
+.name {
+  color: $color-primary;
+}
+
+/* Message list */
+.list {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space-4;
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+
+.listEmpty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-body;
+  font-size: $font-size-base;
+  color: $color-text-muted;
+}
+
+.message {
+  max-width: 70%;
+  align-self: flex-start;
+  background: $color-bubble-received;
+  border: $border-width-thin solid $color-border-dim;
+  padding: $space-2 $space-3;
+}
+
+.mine {
+  align-self: flex-end;
+  background: $color-bubble-sent;
+  border-color: $color-primary;
+}
+
+.meta {
+  display: flex;
+  gap: $space-2;
+  align-items: baseline;
+  margin-bottom: $space-1;
+}
+
+.author {
+  font-family: $font-display;
+  font-size: $font-size-xs;
+  color: $color-secondary;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.time {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+}
+
+.text {
+  font-family: $font-body;
+  font-size: $font-size-base;
+  color: $color-text-primary;
+  line-height: $line-height-body;
+  word-break: break-word;
+}
+
+.corrupt {
+  color: $color-warning;
+}
+
+/* Input bar */
+.inputBar {
+  display: flex;
+  gap: $space-3;
+  padding: $space-3 $space-4;
+  border-top: $border-base;
+  background: $color-bg-surface;
+}
+
+.input {
+  flex: 1;
+  font-family: $font-body;
+  font-size: $font-size-base;
+  color: $color-text-primary;
+  background: $color-bg-base;
+  border: $border-thin;
+  padding: $space-2 $space-3;
+  outline: none;
+
+  &:focus {
+    box-shadow: $glow-secondary;
+    border-color: $color-secondary;
+  }
+
+  &::placeholder {
+    color: $color-text-muted;
+  }
+}
