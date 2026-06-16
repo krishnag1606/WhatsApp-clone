@@ -68,6 +68,13 @@
   margin-top: $space-2;
 }
 
+.when {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  white-space: nowrap;
+}
+
 .error {
   font-family: $font-body;
   color: $color-primary;

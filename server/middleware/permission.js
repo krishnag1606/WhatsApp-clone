@@ -30,3 +30,28 @@ export const requirePermission = (flag) => async (req, res, next) => {
     return res.status(500).json({ error: "Permission check failed" });
   }
 };
+
+// requireAnyPermission(...flags): passes if the member holds AT LEAST ONE of the
+// given flags. Same prerequisites/side-effects as requirePermission.
+export const requireAnyPermission = (...flags) => async (req, res, next) => {
+  try {
+    const community =
+      req.community || (await Community.findById(req.communityId));
+    if (!community) {
+      return res.status(404).json({ error: "Community not found" });
+    }
+    req.community = community;
+
+    const permissions = await computePermissions(req.membership, community);
+    req.permissions = permissions;
+
+    if (!flags.some((flag) => hasPermission(permissions, flag))) {
+      return res
+        .status(403)
+        .json({ error: "You don't have permission to do that" });
+    }
+    next();
+  } catch (error) {
+    return res.status(500).json({ error: "Permission check failed" });
+  }
+};

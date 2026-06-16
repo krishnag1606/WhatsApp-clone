@@ -5,6 +5,8 @@ import { encrypt } from "../util/crypto.js";
 import { toMessageView } from "../util/messageView.js";
 import { computePermissions, sendPermissionFor } from "../util/permissions.js";
 import { hasPermission } from "../constants/permissions.js";
+import { sendCooldownError } from "../util/sendGuards.js";
+import { deleteMessageAs, togglePinAs } from "../util/messageMod.js";
 
 const createSchema = z.object({
   text: z.string().min(1).max(4000),
@@ -33,6 +35,16 @@ export const addMessage = async (request, response) => {
       return response
         .status(403)
         .json({ error: "You don't have permission to post in this channel" });
+    }
+
+    // Time-based gates: mute + slowmode (mods bypass slowmode).
+    const cooldown = await sendCooldownError({
+      membership: request.membership,
+      channel,
+      permissions,
+    });
+    if (cooldown) {
+      return response.status(403).json({ error: cooldown });
     }
 
     const message = await Message.create({
@@ -69,5 +81,56 @@ export const getMessages = async (request, response) => {
     return response.status(200).json(messages);
   } catch (error) {
     return response.status(500).json({ error: "Failed to load messages" });
+  }
+};
+
+// Computes the caller's effective permissions for the channel's community.
+const permissionsForRequest = async (request) => {
+  const community = await Community.findById(request.communityId);
+  return computePermissions(request.membership, community);
+};
+
+// DELETE /api/channels/:channelId/messages/:messageId
+// REST fallback for message deletion (the socket path broadcasts live). Author
+// or MANAGE_MESSAGES.
+export const deleteMessage = async (request, response) => {
+  try {
+    const permissions = await permissionsForRequest(request);
+    const result = await deleteMessageAs({
+      messageId: request.params.messageId,
+      channelId: request.params.channelId,
+      userId: request.userId,
+      permissions,
+      communityId: request.communityId,
+    });
+    if (result.error) {
+      const status = result.error === "Message not found" ? 404 : 403;
+      return response.status(status).json({ error: result.error });
+    }
+    return response.status(200).json(toMessageView(result.message));
+  } catch (error) {
+    return response.status(500).json({ error: "Failed to delete message" });
+  }
+};
+
+// POST /api/channels/:channelId/messages/:messageId/pin
+// REST fallback for pin/unpin (MANAGE_MESSAGES). Toggles pinned.
+export const pinMessage = async (request, response) => {
+  try {
+    const permissions = await permissionsForRequest(request);
+    const result = await togglePinAs({
+      messageId: request.params.messageId,
+      channelId: request.params.channelId,
+      userId: request.userId,
+      permissions,
+      communityId: request.communityId,
+    });
+    if (result.error) {
+      const status = result.error === "Message not found" ? 404 : 403;
+      return response.status(status).json({ error: result.error });
+    }
+    return response.status(200).json(toMessageView(result.message));
+  } catch (error) {
+    return response.status(500).json({ error: "Failed to pin message" });
   }
 };

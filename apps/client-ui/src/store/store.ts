@@ -50,6 +50,16 @@ export const useStore = create<IStore>((set) => ({
         ? {}
         : { messages: [...state.messages, message] }
     ),
+  updateMessage: (message: IMessage) =>
+    set((state) => ({
+      messages: state.messages.map((m) =>
+        m._id === message._id ? message : m
+      ),
+    })),
+  removeMessage: (messageId: string) =>
+    set((state) => ({
+      messages: state.messages.filter((m) => m._id !== messageId),
+    })),
 
   // Socket (Phase 3)
   socket: null,
@@ -67,5 +77,8 @@ export const useStore = create<IStore>((set) => ({
       members: [],
       myPermissions: 0,
       messages: [],
+      // Drop the socket ref too so a new session never reuses the old
+      // connection (AppShell disconnects it on unmount).
+      socket: null,
     }),
 }));

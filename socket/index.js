@@ -19,6 +19,8 @@ import {
   sendPermissionFor,
 } from "../server/util/permissions.js";
 import { hasPermission } from "../server/constants/permissions.js";
+import { sendCooldownError } from "../server/util/sendGuards.js";
+import { deleteMessageAs, togglePinAs } from "../server/util/messageMod.js";
 import Message from "../server/model/Message.js";
 import Channel from "../server/model/Channel.js";
 import Membership from "../server/model/Membership.js";
@@ -127,6 +129,10 @@ io.on("connection", (socket) => {
         throw new Error("You don't have permission to post in this channel");
       }
 
+      // Time-based gates: mute + slowmode (mods bypass slowmode).
+      const cooldown = await sendCooldownError({ membership, channel, permissions });
+      if (cooldown) throw new Error(cooldown);
+
       const message = await Message.create({
         channelId,
         authorId: userId,
@@ -139,6 +145,69 @@ io.on("connection", (socket) => {
       if (typeof ack === "function") ack({ ok: true, message: view });
     } catch (error) {
       console.error("sendMessage failed:", error.message);
+      if (typeof ack === "function") ack({ ok: false, error: error.message });
+      socket.emit("errorMessage", { error: error.message });
+    }
+  });
+
+  // Delete a message (author or MANAGE_MESSAGES) and broadcast the removal to
+  // the room so every viewer drops it live. Soft-delete + audit live in the
+  // shared helper so REST and socket behave identically.
+  socket.on("deleteMessage", async (data, ack) => {
+    try {
+      const channelId = data?.channelId;
+      const messageId = data?.messageId;
+      if (!channelId || !messageId) throw new Error("channelId and messageId required");
+
+      const resolved = await resolveMembership(userId, channelId);
+      if (!resolved) throw new Error("Not a member of this channel's community");
+      const { channel, membership } = resolved;
+
+      const community = await Community.findById(channel.communityId);
+      const permissions = await computePermissions(membership, community);
+      const result = await deleteMessageAs({
+        messageId,
+        channelId,
+        userId,
+        permissions,
+        communityId: channel.communityId,
+      });
+      if (result.error) throw new Error(result.error);
+
+      io.to(roomFor(channelId)).emit("messageDeleted", { channelId, messageId });
+      if (typeof ack === "function") ack({ ok: true });
+    } catch (error) {
+      if (typeof ack === "function") ack({ ok: false, error: error.message });
+      socket.emit("errorMessage", { error: error.message });
+    }
+  });
+
+  // Pin/unpin a message (MANAGE_MESSAGES) and broadcast the updated message.
+  socket.on("pinMessage", async (data, ack) => {
+    try {
+      const channelId = data?.channelId;
+      const messageId = data?.messageId;
+      if (!channelId || !messageId) throw new Error("channelId and messageId required");
+
+      const resolved = await resolveMembership(userId, channelId);
+      if (!resolved) throw new Error("Not a member of this channel's community");
+      const { channel, membership } = resolved;
+
+      const community = await Community.findById(channel.communityId);
+      const permissions = await computePermissions(membership, community);
+      const result = await togglePinAs({
+        messageId,
+        channelId,
+        userId,
+        permissions,
+        communityId: channel.communityId,
+      });
+      if (result.error) throw new Error(result.error);
+
+      const view = toMessageView(result.message);
+      io.to(roomFor(channelId)).emit("messagePinned", view);
+      if (typeof ack === "function") ack({ ok: true, message: view });
+    } catch (error) {
       if (typeof ack === "function") ack({ ok: false, error: error.message });
       socket.emit("errorMessage", { error: error.message });
     }

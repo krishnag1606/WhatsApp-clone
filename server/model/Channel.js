@@ -10,6 +10,9 @@ const channelSchema = new mongoose.Schema(
     name: { type: String, required: true },
     type: { type: String, enum: ["text", "announcement"], default: "text" },
     position: { type: Number, default: 0 },
+    // Slowmode: minimum seconds between messages per member (0 = off). Members
+    // with MANAGE_MESSAGES bypass it. Enforced in the REST + socket send paths.
+    slowmodeSeconds: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
