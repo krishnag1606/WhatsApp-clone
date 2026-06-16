@@ -61,3 +61,41 @@ export const onNewMessage = (handler: (msg: IMessage) => void): (() => void) => 
   socket?.on("newMessage", handler);
   return () => socket?.off("newMessage", handler);
 };
+
+// Fires on every (re)connection. Used to re-join the active channel room after
+// a reconnect, since server-side room membership is per-connection and is lost
+// when the socket drops.
+export const onConnect = (handler: () => void): (() => void) => {
+  socket?.on("connect", handler);
+  return () => socket?.off("connect", handler);
+};
+
+// --- Moderation over the socket (broadcasts to everyone in the room) ---------
+// Each returns true if emitted over a live socket, false if disconnected (so
+// callers can fall back to REST).
+
+export const deleteMessage = (channelId: string, messageId: string): boolean => {
+  if (!socket?.connected) return false;
+  socket.emit("deleteMessage", { channelId, messageId });
+  return true;
+};
+
+export const pinMessage = (channelId: string, messageId: string): boolean => {
+  if (!socket?.connected) return false;
+  socket.emit("pinMessage", { channelId, messageId });
+  return true;
+};
+
+export const onMessageDeleted = (
+  handler: (payload: { channelId: string; messageId: string }) => void
+): (() => void) => {
+  socket?.on("messageDeleted", handler);
+  return () => socket?.off("messageDeleted", handler);
+};
+
+export const onMessagePinned = (
+  handler: (msg: IMessage) => void
+): (() => void) => {
+  socket?.on("messagePinned", handler);
+  return () => socket?.off("messagePinned", handler);
+};

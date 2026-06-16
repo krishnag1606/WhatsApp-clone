@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "./apiClient";
+import { apiGet, apiPost, apiDelete } from "./apiClient";
 import { IMessage } from "../store/IStore";
 
 class MessageService {
@@ -9,6 +9,19 @@ class MessageService {
 
   send(channelId: string, text: string): Promise<IMessage> {
     return apiPost<IMessage>(`/api/channels/${channelId}/messages`, { text });
+  }
+
+  // REST fallbacks for moderation (the socket path broadcasts live).
+  remove(channelId: string, messageId: string): Promise<IMessage> {
+    return apiDelete<IMessage>(
+      `/api/channels/${channelId}/messages/${messageId}`
+    );
+  }
+
+  pin(channelId: string, messageId: string): Promise<IMessage> {
+    return apiPost<IMessage>(
+      `/api/channels/${channelId}/messages/${messageId}/pin`
+    );
   }
 }
 

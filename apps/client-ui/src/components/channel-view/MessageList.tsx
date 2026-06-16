@@ -2,10 +2,17 @@ import React from "react";
 import styles from "./channel-view.module.scss";
 import { useStore } from "../../store/store";
 import { IMessage } from "../../store/IStore";
+import { messageService } from "../../services/MessageService";
+import {
+  deleteMessage as socketDelete,
+  pinMessage as socketPin,
+} from "../../services/socketService";
+import { Permissions, hasPermission } from "../../constants/permissions";
 
 interface MessageListProps {
   messages: IMessage[];
   loading: boolean;
+  channelId: string;
 }
 
 const formatTime = (iso: string) => {
@@ -19,11 +26,45 @@ const formatTime = (iso: string) => {
   }
 };
 
-const MessageList: React.FC<MessageListProps> = ({ messages, loading }) => {
+const MessageList: React.FC<MessageListProps> = ({
+  messages,
+  loading,
+  channelId,
+}) => {
   const currentUser = useStore((s) => s.currentUser);
   const members = useStore((s) => s.members);
   const roles = useStore((s) => s.roles);
+  const myPermissions = useStore((s) => s.myPermissions);
+  const updateMessage = useStore((s) => s.updateMessage);
+  const removeMessage = useStore((s) => s.removeMessage);
   const endRef = React.useRef<HTMLDivElement>(null);
+
+  const canManageMessages = hasPermission(
+    myPermissions,
+    Permissions.MANAGE_MESSAGES
+  );
+
+  // Delete over the socket (broadcasts to the room); fall back to REST when the
+  // socket is down, applying the change locally.
+  const handleDelete = async (messageId: string) => {
+    if (!window.confirm("Delete this message?")) return;
+    if (socketDelete(channelId, messageId)) return;
+    try {
+      await messageService.remove(channelId, messageId);
+      removeMessage(messageId);
+    } catch (error) {
+      console.error("Failed to delete message", error);
+    }
+  };
+
+  const handlePin = async (messageId: string) => {
+    if (socketPin(channelId, messageId)) return;
+    try {
+      updateMessage(await messageService.pin(channelId, messageId));
+    } catch (error) {
+      console.error("Failed to pin message", error);
+    }
+  };
 
   const rolesById = React.useMemo(
     () => new Map(roles.map((r) => [r._id, r])),
@@ -65,6 +106,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, loading }) => {
       {messages.map((m) => {
         const mine = m.authorId === currentUser?._id;
         const info = authorInfo(m.authorId);
+        const canDelete = mine || canManageMessages;
         return (
           <div
             key={m._id}
@@ -75,6 +117,35 @@ const MessageList: React.FC<MessageListProps> = ({ messages, loading }) => {
                 {mine ? "you" : info.name}
               </span>
               <span className={styles.time}>{formatTime(m.createdAt)}</span>
+              {m.pinned && (
+                <span className={styles.pin} title="Pinned">
+                  📌
+                </span>
+              )}
+              {(canDelete || canManageMessages) && (
+                <span className={styles.actions}>
+                  {canManageMessages && (
+                    <button
+                      type="button"
+                      className={styles.actionBtn}
+                      title={m.pinned ? "Unpin" : "Pin"}
+                      onClick={() => handlePin(m._id)}
+                    >
+                      {m.pinned ? "unpin" : "pin"}
+                    </button>
+                  )}
+                  {canDelete && (
+                    <button
+                      type="button"
+                      className={styles.actionBtn}
+                      title="Delete"
+                      onClick={() => handleDelete(m._id)}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </span>
+              )}
             </div>
             <div className={styles.text}>
               {m.text ?? <em className={styles.corrupt}>[unable to decrypt]</em>}

@@ -24,6 +24,7 @@ export interface IChannel {
   name: string;
   type: ChannelType;
   position: number;
+  slowmodeSeconds?: number;
 }
 
 export interface IRole {
@@ -57,6 +58,7 @@ export interface IMessage {
   pinned?: boolean;
   createdAt: string;
   editedAt?: string;
+  deletedAt?: string | null;
 }
 
 export interface IStore {
@@ -91,6 +93,10 @@ export interface IStore {
   messages: IMessage[];
   setMessages: (messages: IMessage[]) => void;
   addMessage: (message: IMessage) => void;
+  // Replace a message in place (e.g. pin toggled) — matched by _id.
+  updateMessage: (message: IMessage) => void;
+  // Remove a message from the active channel (e.g. deleted) — matched by _id.
+  removeMessage: (messageId: string) => void;
 
   // Socket (wired for real-time in Phase 3)
   socket: any;

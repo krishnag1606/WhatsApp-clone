@@ -11,6 +11,9 @@ import { Permissions, hasPermission } from "../../constants/permissions";
 import { PixelButton } from "../../ui";
 import RolesModal from "../modals/RolesModal";
 import MembersModal from "../modals/MembersModal";
+import AuditLogModal from "../modals/AuditLogModal";
+import AddChannelModal from "../modals/AddChannelModal";
+import InviteModal from "../modals/InviteModal";
 
 // Lists the active community's channels. Reads the community/channel from the
 // URL via useMatch (it renders outside <Routes>). Also loads the caller's
@@ -36,10 +39,33 @@ const ChannelSidebar: React.FC = () => {
 
   const [rolesOpen, setRolesOpen] = React.useState(false);
   const [membersOpen, setMembersOpen] = React.useState(false);
+  const [auditOpen, setAuditOpen] = React.useState(false);
+  const [addChannelOpen, setAddChannelOpen] = React.useState(false);
+  const [inviteOpen, setInviteOpen] = React.useState(false);
 
   const community = communities.find((c) => c._id === communityId);
   const canManageChannels = hasPermission(myPermissions, Permissions.MANAGE_CHANNELS);
   const canManageRoles = hasPermission(myPermissions, Permissions.MANAGE_ROLES);
+  // The owner is the source of truth: even if the /me permission bitfield hasn't
+  // resolved yet (or a role edit briefly drops MANAGE_COMMUNITY), the owner is
+  // always allowed to view/share the invite code.
+  const isOwner = !!community && community.ownerId === currentUser?._id;
+  const canManageCommunity =
+    isOwner || hasPermission(myPermissions, Permissions.MANAGE_COMMUNITY);
+  // Anyone with a moderation-ish permission may view the audit log.
+  const canViewAudit = [
+    Permissions.KICK,
+    Permissions.BAN,
+    Permissions.MUTE,
+    Permissions.MANAGE_MESSAGES,
+    Permissions.MANAGE_CHANNELS,
+    Permissions.MANAGE_COMMUNITY,
+  ].some((flag) => hasPermission(myPermissions, flag));
+  // Manage bar holds Roles / Members / Audit. Invite has its own row below.
+  const showManageBar = canManageRoles || canViewAudit;
+
+  // TEMP debug: verify the owner's permission bitfield resolves from /me.
+  console.log("My Permissions:", myPermissions, "| isOwner:", isOwner);
 
   const loadChannels = React.useCallback(async () => {
     if (!communityId) {
@@ -89,19 +115,6 @@ const ChannelSidebar: React.FC = () => {
     loadMembers();
   }, [loadChannels, loadRoles, loadMembers]);
 
-  const createChannel = async () => {
-    if (!communityId) return;
-    const name = window.prompt("New channel name:");
-    if (!name?.trim()) return;
-    try {
-      const channel = await channelService.create(communityId, { name: name.trim() });
-      await loadChannels();
-      navigate(`/c/${communityId}/${channel._id}`);
-    } catch (error) {
-      console.error("Failed to create channel", error);
-    }
-  };
-
   const logout = () => {
     clearToken();
     reset();
@@ -114,14 +127,37 @@ const ChannelSidebar: React.FC = () => {
         {community ? community.name : "Flux"}
       </div>
 
-      {communityId && canManageRoles && (
+      {/* Prominent, full-width invite action right under the community name. */}
+      {communityId && community && canManageCommunity && (
+        <div className={styles.inviteBar}>
+          <PixelButton
+            variant="cyan"
+            size="sm"
+            className={styles.inviteButton}
+            onClick={() => setInviteOpen(true)}
+          >
+            🔗 Invite people
+          </PixelButton>
+        </div>
+      )}
+
+      {communityId && showManageBar && (
         <div className={styles.manageBar}>
-          <PixelButton variant="ghost" size="sm" onClick={() => setRolesOpen(true)}>
-            Roles
-          </PixelButton>
-          <PixelButton variant="ghost" size="sm" onClick={() => setMembersOpen(true)}>
-            Members
-          </PixelButton>
+          {canManageRoles && (
+            <PixelButton variant="ghost" size="sm" onClick={() => setRolesOpen(true)}>
+              Roles
+            </PixelButton>
+          )}
+          {(canManageRoles || canViewAudit) && (
+            <PixelButton variant="ghost" size="sm" onClick={() => setMembersOpen(true)}>
+              Members
+            </PixelButton>
+          )}
+          {canViewAudit && (
+            <PixelButton variant="ghost" size="sm" onClick={() => setAuditOpen(true)}>
+              Audit
+            </PixelButton>
+          )}
         </div>
       )}
 
@@ -142,7 +178,10 @@ const ChannelSidebar: React.FC = () => {
             </button>
           ))}
         {communityId && canManageChannels && (
-          <button className={styles.addChannel} onClick={createChannel}>
+          <button
+            className={styles.addChannel}
+            onClick={() => setAddChannelOpen(true)}
+          >
             ＋ add channel
           </button>
         )}
@@ -174,6 +213,25 @@ const ChannelSidebar: React.FC = () => {
             communityId={communityId}
             onChanged={loadMembers}
           />
+          <AuditLogModal
+            isOpen={auditOpen}
+            onClose={() => setAuditOpen(false)}
+            communityId={communityId}
+          />
+          <AddChannelModal
+            isOpen={addChannelOpen}
+            onClose={() => setAddChannelOpen(false)}
+            communityId={communityId}
+            onCreated={loadChannels}
+          />
+          {community && (
+            <InviteModal
+              isOpen={inviteOpen}
+              onClose={() => setInviteOpen(false)}
+              communityName={community.name}
+              inviteCode={community.inviteCode}
+            />
+          )}
         </>
       )}
     </aside>

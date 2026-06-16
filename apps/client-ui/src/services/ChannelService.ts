@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "./apiClient";
+import { apiGet, apiPost, apiPut } from "./apiClient";
 import { IChannel, ChannelType } from "../store/IStore";
 
 class ChannelService {
@@ -14,6 +14,14 @@ class ChannelService {
       `/api/communities/${communityId}/channels`,
       data
     );
+  }
+
+  // Update channel settings (slowmode, name) — requires MANAGE_CHANNELS.
+  update(
+    channelId: string,
+    data: { name?: string; slowmodeSeconds?: number; type?: ChannelType }
+  ): Promise<IChannel> {
+    return apiPut<IChannel>(`/api/channels/${channelId}`, data);
   }
 }
 

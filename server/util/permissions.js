@@ -19,6 +19,16 @@ export const computePermissions = async (membership, community) => {
   return roles.reduce((acc, role) => acc | role.permissions, 0);
 };
 
+// Role-hierarchy guard for moderation actions: an actor may only moderate a
+// target whose effective permissions are a subset of their own. The owner can
+// moderate anyone. This stops a moderator from kicking/banning the owner or a
+// peer admin who holds powers they lack. (Self-targeting is rejected separately
+// by the controllers.)
+export const canModerate = (actorPermissions, targetPermissions, actorIsOwner) => {
+  if (actorIsOwner) return true;
+  return (targetPermissions & ~actorPermissions) === 0;
+};
+
 // The permission flag required to post in a given channel: announcement channels
 // require POST_ANNOUNCEMENTS, everything else requires SEND_MESSAGES. Shared by
 // the REST message controller and the socket server so both gate identically.

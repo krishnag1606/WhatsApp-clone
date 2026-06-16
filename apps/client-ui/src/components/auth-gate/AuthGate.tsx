@@ -34,7 +34,14 @@ const AuthGate: React.FC = () => {
   }, [setCurrentUser, setToken]);
 
   if (checking) return null;
-  return currentUser ? <AppShell /> : <LoginPage />;
+  // Key the shell by user id so switching accounts (logout → login as someone
+  // else) forces a clean remount: communities/socket are refetched for the new
+  // identity instead of reusing the previous session's mounted instance.
+  return currentUser ? (
+    <AppShell key={currentUser._id} />
+  ) : (
+    <LoginPage />
+  );
 };
 
 export default AuthGate;

@@ -23,9 +23,19 @@
 
 .manageBar {
   display: flex;
+  flex-wrap: wrap;
   gap: $space-2;
   padding: $space-2 $space-3;
   border-bottom: $border-thin;
+}
+
+.inviteBar {
+  padding: $space-2 $space-3;
+  border-bottom: $border-thin;
+}
+
+.inviteButton {
+  width: 100%;
 }
 
 .channels {

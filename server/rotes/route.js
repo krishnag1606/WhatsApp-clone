@@ -13,7 +13,7 @@ import {
 // Phase 1 community-model controllers + middleware.
 import { requireAuth } from "../middleware/auth.js";
 import { requireMembership } from "../middleware/membership.js";
-import { requirePermission } from "../middleware/permission.js";
+import { requirePermission, requireAnyPermission } from "../middleware/permission.js";
 import { Permissions } from "../constants/permissions.js";
 import { googleAuth, getMe } from "../controller/auth-controller.js";
 import {
@@ -25,10 +25,13 @@ import {
 import {
   createChannel,
   getChannels,
+  updateChannel,
 } from "../controller/channel-controller.js";
 import {
   addMessage,
   getMessages,
+  deleteMessage,
+  pinMessage,
 } from "../controller/message-controller.js";
 // Phase 4 — roles & permissions.
 import {
@@ -42,6 +45,15 @@ import {
   getMyMembership,
   setMemberRoles,
 } from "../controller/member-controller.js";
+// Phase 5 — moderation.
+import {
+  kickMember,
+  banMember,
+  unbanMember,
+  muteMember,
+  unmuteMember,
+  getAuditLog,
+} from "../controller/moderation-controller.js";
 
 const route = express.Router();
 
@@ -81,6 +93,57 @@ route.put(
   requireMembership,
   requirePermission(Permissions.MANAGE_ROLES),
   setMemberRoles
+);
+
+/* --------------------------- Moderation (Phase 5) ---------------------- */
+route.post(
+  "/api/communities/:communityId/members/:userId/kick",
+  requireAuth,
+  requireMembership,
+  requirePermission(Permissions.KICK),
+  kickMember
+);
+route.post(
+  "/api/communities/:communityId/members/:userId/ban",
+  requireAuth,
+  requireMembership,
+  requirePermission(Permissions.BAN),
+  banMember
+);
+route.post(
+  "/api/communities/:communityId/members/:userId/unban",
+  requireAuth,
+  requireMembership,
+  requirePermission(Permissions.BAN),
+  unbanMember
+);
+route.post(
+  "/api/communities/:communityId/members/:userId/mute",
+  requireAuth,
+  requireMembership,
+  requirePermission(Permissions.MUTE),
+  muteMember
+);
+route.post(
+  "/api/communities/:communityId/members/:userId/unmute",
+  requireAuth,
+  requireMembership,
+  requirePermission(Permissions.MUTE),
+  unmuteMember
+);
+route.get(
+  "/api/communities/:communityId/audit",
+  requireAuth,
+  requireMembership,
+  requireAnyPermission(
+    Permissions.KICK,
+    Permissions.BAN,
+    Permissions.MUTE,
+    Permissions.MANAGE_MESSAGES,
+    Permissions.MANAGE_CHANNELS,
+    Permissions.MANAGE_COMMUNITY
+  ),
+  getAuditLog
 );
 
 route.get(
@@ -125,6 +188,13 @@ route.get(
   requireMembership,
   getChannels
 );
+route.put(
+  "/api/channels/:channelId",
+  requireAuth,
+  requireMembership,
+  requirePermission(Permissions.MANAGE_CHANNELS),
+  updateChannel
+);
 
 /* ------------------------------- Messages ------------------------------ */
 route.post(
@@ -138,6 +208,18 @@ route.get(
   requireAuth,
   requireMembership,
   getMessages
+);
+route.delete(
+  "/api/channels/:channelId/messages/:messageId",
+  requireAuth,
+  requireMembership,
+  deleteMessage
+);
+route.post(
+  "/api/channels/:channelId/messages/:messageId/pin",
+  requireAuth,
+  requireMembership,
+  pinMessage
 );
 
 export default route;
