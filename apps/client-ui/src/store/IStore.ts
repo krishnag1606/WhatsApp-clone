@@ -26,6 +26,27 @@ export interface IChannel {
   position: number;
 }
 
+export interface IRole {
+  _id: string;
+  communityId: string;
+  name: string;
+  color: string;
+  permissions: number;
+  position: number;
+}
+
+// Member view returned by GET /api/communities/:id/members.
+export interface IMember {
+  userId: string;
+  name: string;
+  picture?: string | null;
+  nickname?: string | null;
+  roleIds: string[];
+  banned: boolean;
+  mutedUntil?: string | null;
+  joinedAt?: string;
+}
+
 // Decrypted message view returned by GET /api/channels/:id/messages.
 export interface IMessage {
   _id: string;
@@ -56,6 +77,15 @@ export interface IStore {
   setChannels: (channels: IChannel[]) => void;
   activeChannelId: string | null;
   setActiveChannelId: (id: string | null) => void;
+
+  // Roles & members of the active community + the caller's effective
+  // permissions (Phase 4 — used to gate UI controls).
+  roles: IRole[];
+  setRoles: (roles: IRole[]) => void;
+  members: IMember[];
+  setMembers: (members: IMember[]) => void;
+  myPermissions: number;
+  setMyPermissions: (permissions: number) => void;
 
   // Messages of the active channel
   messages: IMessage[];

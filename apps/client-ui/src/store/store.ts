@@ -1,5 +1,13 @@
 import { create } from "zustand";
-import { IStore, IUser, ICommunity, IChannel, IMessage } from "./IStore";
+import {
+  IStore,
+  IUser,
+  ICommunity,
+  IChannel,
+  IMessage,
+  IRole,
+  IMember,
+} from "./IStore";
 import { getToken } from "../services/apiClient";
 
 export const useStore = create<IStore>((set) => ({
@@ -22,6 +30,14 @@ export const useStore = create<IStore>((set) => ({
   activeChannelId: null,
   setActiveChannelId: (activeChannelId: string | null) =>
     set({ activeChannelId }),
+
+  // Roles & members of the active community (Phase 4)
+  roles: [],
+  setRoles: (roles: IRole[]) => set({ roles }),
+  members: [],
+  setMembers: (members: IMember[]) => set({ members }),
+  myPermissions: 0,
+  setMyPermissions: (myPermissions: number) => set({ myPermissions }),
 
   // Messages
   messages: [],
@@ -47,6 +63,9 @@ export const useStore = create<IStore>((set) => ({
       activeCommunityId: null,
       channels: [],
       activeChannelId: null,
+      roles: [],
+      members: [],
+      myPermissions: 0,
       messages: [],
     }),
 }));

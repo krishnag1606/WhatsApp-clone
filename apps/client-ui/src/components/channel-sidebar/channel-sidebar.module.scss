@@ -21,6 +21,13 @@
   text-overflow: ellipsis;
 }
 
+.manageBar {
+  display: flex;
+  gap: $space-2;
+  padding: $space-2 $space-3;
+  border-bottom: $border-thin;
+}
+
 .channels {
   flex: 1;
   overflow-y: auto;

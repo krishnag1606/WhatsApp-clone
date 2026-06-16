@@ -1,7 +1,10 @@
 import { z } from "zod";
 import Message from "../model/Message.js";
+import Community from "../model/Community.js";
 import { encrypt } from "../util/crypto.js";
 import { toMessageView } from "../util/messageView.js";
+import { computePermissions, sendPermissionFor } from "../util/permissions.js";
+import { hasPermission } from "../constants/permissions.js";
 
 const createSchema = z.object({
   text: z.string().min(1).max(4000),
@@ -12,12 +15,24 @@ const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 100;
 
 // POST /api/channels/:channelId/messages  (requireAuth + requireMembership)
-// Encrypts content at rest. NOTE: mute enforcement is layered on in Phase 4.
+// Encrypts content at rest. Permission is channel-type aware: announcement
+// channels require POST_ANNOUNCEMENTS, text channels SEND_MESSAGES. Mute
+// enforcement is layered on in Phase 5.
 export const addMessage = async (request, response) => {
   try {
     const parsed = createSchema.safeParse(request.body);
     if (!parsed.success) {
       return response.status(400).json({ error: "Message `text` is required" });
+    }
+
+    // requireMembership attaches req.channel when it resolves via :channelId.
+    const channel = request.channel;
+    const community = await Community.findById(request.communityId);
+    const permissions = await computePermissions(request.membership, community);
+    if (!hasPermission(permissions, sendPermissionFor(channel))) {
+      return response
+        .status(403)
+        .json({ error: "You don't have permission to post in this channel" });
     }
 
     const message = await Message.create({

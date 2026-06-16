@@ -53,3 +53,20 @@ export const apiPost = async <T = any>(path: string, body?: any): Promise<T> => 
   });
   return parse(res);
 };
+
+export const apiPut = async <T = any>(path: string, body?: any): Promise<T> => {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  return parse(res);
+};
+
+export const apiDelete = async <T = any>(path: string): Promise<T> => {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "DELETE",
+    headers: { ...authHeaders() },
+  });
+  return parse(res);
+};

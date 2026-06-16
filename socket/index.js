@@ -14,9 +14,15 @@ import Connection from "../server/database/db.js";
 import { verifySession } from "../server/util/jwt.js";
 import { encrypt } from "../server/util/crypto.js";
 import { toMessageView } from "../server/util/messageView.js";
+import {
+  computePermissions,
+  sendPermissionFor,
+} from "../server/util/permissions.js";
+import { hasPermission } from "../server/constants/permissions.js";
 import Message from "../server/model/Message.js";
 import Channel from "../server/model/Channel.js";
 import Membership from "../server/model/Membership.js";
+import Community from "../server/model/Community.js";
 
 const MAX_MESSAGE_LENGTH = 4000;
 const roomFor = (channelId) => `channel:${channelId}`;
@@ -52,8 +58,9 @@ io.use((socket, next) => {
 });
 
 // Resolves the channel's community and confirms the socket's user has an active
-// (non-banned) membership. Returns the channel doc, or null if not allowed.
-// Per-permission/mute enforcement is layered on in Phase 4/5.
+// (non-banned) membership. Returns `{ channel, membership }`, or null if not
+// allowed. Permission gating is applied by callers; mute enforcement lands in
+// Phase 5.
 const resolveMembership = async (userId, channelId) => {
   const channel = await Channel.findById(channelId);
   if (!channel) return null;
@@ -62,7 +69,7 @@ const resolveMembership = async (userId, channelId) => {
     userId,
   });
   if (!membership || membership.banned) return null;
-  return channel;
+  return { channel, membership };
 };
 
 io.on("connection", (socket) => {
@@ -74,8 +81,8 @@ io.on("connection", (socket) => {
   socket.on("joinChannel", async (channelId, ack) => {
     try {
       if (!channelId) throw new Error("channelId required");
-      const channel = await resolveMembership(userId, channelId);
-      if (!channel) throw new Error("Not a member of this channel's community");
+      const resolved = await resolveMembership(userId, channelId);
+      if (!resolved) throw new Error("Not a member of this channel's community");
 
       // Leave any other channel rooms before joining the new one.
       for (const room of socket.rooms) {
@@ -107,8 +114,18 @@ io.on("connection", (socket) => {
       if (text.length > MAX_MESSAGE_LENGTH)
         throw new Error("Message too long");
 
-      const channel = await resolveMembership(userId, channelId);
-      if (!channel) throw new Error("Not a member of this channel's community");
+      const resolved = await resolveMembership(userId, channelId);
+      if (!resolved) throw new Error("Not a member of this channel's community");
+      const { channel, membership } = resolved;
+
+      // Authoritative permission gate, channel-type aware (mirrors the REST
+      // controller): announcement channels need POST_ANNOUNCEMENTS, text
+      // channels SEND_MESSAGES.
+      const community = await Community.findById(channel.communityId);
+      const permissions = await computePermissions(membership, community);
+      if (!hasPermission(permissions, sendPermissionFor(channel))) {
+        throw new Error("You don't have permission to post in this channel");
+      }
 
       const message = await Message.create({
         channelId,
