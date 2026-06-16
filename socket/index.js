@@ -21,10 +21,14 @@ import {
 import { hasPermission } from "../server/constants/permissions.js";
 import { sendCooldownError } from "../server/util/sendGuards.js";
 import { deleteMessageAs, togglePinAs } from "../server/util/messageMod.js";
+import { toPollView } from "../server/util/pollView.js";
+import { applyVoteAs } from "../server/util/pollVote.js";
+import { Permissions } from "../server/constants/permissions.js";
 import Message from "../server/model/Message.js";
 import Channel from "../server/model/Channel.js";
 import Membership from "../server/model/Membership.js";
 import Community from "../server/model/Community.js";
+import Poll from "../server/model/Poll.js";
 
 const MAX_MESSAGE_LENGTH = 4000;
 const roomFor = (channelId) => `channel:${channelId}`;
@@ -207,6 +211,75 @@ io.on("connection", (socket) => {
       const view = toMessageView(result.message);
       io.to(roomFor(channelId)).emit("messagePinned", view);
       if (typeof ack === "function") ack({ ok: true, message: view });
+    } catch (error) {
+      if (typeof ack === "function") ack({ ok: false, error: error.message });
+      socket.emit("errorMessage", { error: error.message });
+    }
+  });
+
+  // Create a poll in the channel (gated by CREATE_POLLS) and broadcast `newPoll`
+  // to the room so everyone sees it live, mirroring the sendMessage flow.
+  socket.on("createPoll", async (data, ack) => {
+    try {
+      const channelId = data?.channelId;
+      const question = typeof data?.question === "string" ? data.question.trim() : "";
+      const rawOptions = Array.isArray(data?.options) ? data.options : [];
+      const options = rawOptions
+        .map((o) => (typeof o === "string" ? o.trim() : ""))
+        .filter(Boolean);
+      if (!channelId) throw new Error("channelId required");
+      if (!question) throw new Error("Poll question required");
+      if (options.length < 2) throw new Error("At least two options required");
+      if (options.length > 10) throw new Error("Too many options");
+
+      const resolved = await resolveMembership(userId, channelId);
+      if (!resolved) throw new Error("Not a member of this channel's community");
+      const { channel, membership } = resolved;
+
+      const community = await Community.findById(channel.communityId);
+      const permissions = await computePermissions(membership, community);
+      if (!hasPermission(permissions, Permissions.CREATE_POLLS)) {
+        throw new Error("You don't have permission to create polls here");
+      }
+
+      const poll = await Poll.create({
+        channelId,
+        authorId: userId,
+        question,
+        options: options.map((text) => ({ text, voters: [] })),
+        allowMultiple: Boolean(data?.allowMultiple),
+        expiresAt: data?.expiresAt ? new Date(data.expiresAt) : undefined,
+      });
+
+      const view = toPollView(poll);
+      io.to(roomFor(channelId)).emit("newPoll", view);
+      if (typeof ack === "function") ack({ ok: true, poll: view });
+    } catch (error) {
+      if (typeof ack === "function") ack({ ok: false, error: error.message });
+      socket.emit("errorMessage", { error: error.message });
+    }
+  });
+
+  // Toggle the caller's vote on a poll option and broadcast the updated poll
+  // (with fresh vote counts) to the room. Membership is re-checked; toggling +
+  // allowMultiple are enforced authoritatively in the shared helper.
+  socket.on("votePoll", async (data, ack) => {
+    try {
+      const channelId = data?.channelId;
+      const pollId = data?.pollId;
+      const optionId = data?.optionId;
+      if (!channelId || !pollId || !optionId)
+        throw new Error("channelId, pollId and optionId required");
+
+      const resolved = await resolveMembership(userId, channelId);
+      if (!resolved) throw new Error("Not a member of this channel's community");
+
+      const result = await applyVoteAs({ pollId, optionId, userId });
+      if (result.error) throw new Error(result.error);
+
+      const view = toPollView(result.poll);
+      io.to(roomFor(channelId)).emit("pollUpdated", view);
+      if (typeof ack === "function") ack({ ok: true, poll: view });
     } catch (error) {
       if (typeof ack === "function") ack({ ok: false, error: error.message });
       socket.emit("errorMessage", { error: error.message });

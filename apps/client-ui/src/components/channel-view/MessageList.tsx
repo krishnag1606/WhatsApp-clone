@@ -1,19 +1,29 @@
 import React from "react";
 import styles from "./channel-view.module.scss";
 import { useStore } from "../../store/store";
-import { IMessage } from "../../store/IStore";
+import { IMessage, IPoll } from "../../store/IStore";
 import { messageService } from "../../services/MessageService";
 import {
   deleteMessage as socketDelete,
   pinMessage as socketPin,
 } from "../../services/socketService";
 import { Permissions, hasPermission } from "../../constants/permissions";
+import { PixelIcon } from "../../ui";
+import Poll from "./Poll";
 
 interface MessageListProps {
   messages: IMessage[];
+  polls: IPoll[];
   loading: boolean;
   channelId: string;
+  // Announcement channels render their messages with extra Y2K flair.
+  isAnnouncement?: boolean;
 }
+
+// Discriminated stream item so messages and polls can be interleaved by time.
+type StreamItem =
+  | { kind: "message"; createdAt: string; data: IMessage }
+  | { kind: "poll"; createdAt: string; data: IPoll };
 
 const formatTime = (iso: string) => {
   try {
@@ -28,8 +38,10 @@ const formatTime = (iso: string) => {
 
 const MessageList: React.FC<MessageListProps> = ({
   messages,
+  polls,
   loading,
   channelId,
+  isAnnouncement = false,
 }) => {
   const currentUser = useStore((s) => s.currentUser);
   const members = useStore((s) => s.members);
@@ -88,35 +100,65 @@ const MessageList: React.FC<MessageListProps> = ({
     };
   }, [members, rolesById]);
 
-  // Keep the latest message in view as the list grows.
+  // Interleave messages + polls into a single time-ordered stream.
+  const stream = React.useMemo<StreamItem[]>(() => {
+    const items: StreamItem[] = [
+      ...messages.map((m) => ({
+        kind: "message" as const,
+        createdAt: m.createdAt,
+        data: m,
+      })),
+      ...polls.map((p) => ({
+        kind: "poll" as const,
+        createdAt: p.createdAt,
+        data: p,
+      })),
+    ];
+    return items.sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  }, [messages, polls]);
+
+  // Keep the latest item in view as the stream grows.
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+  }, [stream.length]);
 
-  if (loading && !messages.length) {
+  if (loading && !stream.length) {
     return <div className={styles.listEmpty}>Loading messages…</div>;
   }
 
-  if (!messages.length) {
+  if (!stream.length) {
     return <div className={styles.listEmpty}>No messages yet. Say hi! ✦</div>;
   }
 
   return (
     <div className={styles.list}>
-      {messages.map((m) => {
+      {stream.map((item) => {
+        if (item.kind === "poll") {
+          return <Poll key={`poll-${item.data._id}`} poll={item.data} />;
+        }
+        const m = item.data;
         const mine = m.authorId === currentUser?._id;
         const info = authorInfo(m.authorId);
         const canDelete = mine || canManageMessages;
         return (
           <div
             key={m._id}
-            className={`${styles.message} ${mine ? styles.mine : ""}`}
+            className={`${styles.message} ${mine ? styles.mine : ""} ${
+              isAnnouncement ? styles.announcement : ""
+            }`}
           >
             <div className={styles.meta}>
               <span className={styles.author} style={{ color: info.color }}>
                 {mine ? "you" : info.name}
               </span>
               <span className={styles.time}>{formatTime(m.createdAt)}</span>
+              {isAnnouncement && (
+                <span className={styles.announceBadge} title="Announcement">
+                  <PixelIcon name="speaker" size={12} />
+                </span>
+              )}
               {m.pinned && (
                 <span className={styles.pin} title="Pinned">
                   📌

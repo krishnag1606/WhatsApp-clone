@@ -5,7 +5,8 @@ import { messageService } from "../../services/MessageService";
 import { sendMessage as socketSend } from "../../services/socketService";
 import { ChannelType } from "../../store/IStore";
 import { Permissions, hasPermission } from "../../constants/permissions";
-import { PixelButton } from "../../ui";
+import { PixelButton, PixelIcon } from "../../ui";
+import CreatePollModal from "../modals/CreatePollModal";
 
 interface MessageInputProps {
   channelId: string;
@@ -25,6 +26,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 }) => {
   const [text, setText] = React.useState("");
   const [sending, setSending] = React.useState(false);
+  const [pollOpen, setPollOpen] = React.useState(false);
   const addMessage = useStore((s) => s.addMessage);
   const myPermissions = useStore((s) => s.myPermissions);
 
@@ -33,6 +35,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
       ? Permissions.POST_ANNOUNCEMENTS
       : Permissions.SEND_MESSAGES;
   const canSend = hasPermission(myPermissions, requiredFlag);
+  const canCreatePolls = hasPermission(myPermissions, Permissions.CREATE_POLLS);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,30 +61,49 @@ const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   return (
-    <form className={styles.inputBar} onSubmit={submit}>
-      <input
-        className={styles.input}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder={
-          canSend
-            ? `Message #${channelName ?? "channel"}`
-            : channelType === "announcement"
-            ? "You can't post in this announcement channel"
-            : "You don't have permission to send messages here"
-        }
-        aria-label="Message"
-        disabled={!canSend}
+    <>
+      <form className={styles.inputBar} onSubmit={submit}>
+        <input
+          className={styles.input}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={
+            canSend
+              ? `Message #${channelName ?? "channel"}`
+              : channelType === "announcement"
+              ? "You do not have permission to post in this announcement channel"
+              : "You don't have permission to send messages here"
+          }
+          aria-label="Message"
+          disabled={!canSend}
+        />
+        {canCreatePolls && (
+          <PixelButton
+            type="button"
+            variant="cyan"
+            size="md"
+            onClick={() => setPollOpen(true)}
+            title="Create a poll"
+            aria-label="Create a poll"
+          >
+            <PixelIcon name="chart-bar" size={16} />
+          </PixelButton>
+        )}
+        <PixelButton
+          type="submit"
+          variant="primary"
+          size="md"
+          disabled={sending || !canSend}
+        >
+          {sending ? "…" : "Send"}
+        </PixelButton>
+      </form>
+      <CreatePollModal
+        isOpen={pollOpen}
+        onClose={() => setPollOpen(false)}
+        channelId={channelId}
       />
-      <PixelButton
-        type="submit"
-        variant="primary"
-        size="md"
-        disabled={sending || !canSend}
-      >
-        {sending ? "…" : "Send"}
-      </PixelButton>
-    </form>
+    </>
   );
 };
 

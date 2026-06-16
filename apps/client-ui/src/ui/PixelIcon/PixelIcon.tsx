@@ -29,6 +29,9 @@ import { ReactComponent as LockSvg } from 'pixelarticons/svg/lock.svg';
 import { ReactComponent as HomeSvg } from 'pixelarticons/svg/home.svg';
 import { ReactComponent as ZapSvg } from 'pixelarticons/svg/zap.svg';
 import { ReactComponent as HeartSvg } from 'pixelarticons/svg/heart.svg';
+import { ReactComponent as SpeakerSvg } from 'pixelarticons/svg/speaker.svg';
+import { ReactComponent as NotificationSvg } from 'pixelarticons/svg/notification.svg';
+import { ReactComponent as ChartBarSvg } from 'pixelarticons/svg/chart-bar.svg';
 
 const iconMap = {
   chat: ChatSvg,
@@ -59,6 +62,9 @@ const iconMap = {
   home: HomeSvg,
   zap: ZapSvg,
   heart: HeartSvg,
+  speaker: SpeakerSvg,
+  notification: NotificationSvg,
+  'chart-bar': ChartBarSvg,
 } as const;
 
 export type PixelIconName = keyof typeof iconMap;

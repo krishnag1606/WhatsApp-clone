@@ -72,6 +72,13 @@
   color: $color-text-muted;
 }
 
+// Announcement channels read as "broadcast" — tint the speaker icon neon yellow
+// so they stand apart from the muted "#" of text channels.
+.announceIcon {
+  flex-shrink: 0;
+  color: $color-accent;
+}
+
 .active {
   color: $color-secondary;
   border-color: $color-secondary;
