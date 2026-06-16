@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./channel-view.module.scss";
 import { useStore } from "../../store/store";
 import { messageService } from "../../services/MessageService";
+import { sendMessage as socketSend } from "../../services/socketService";
 import { PixelButton } from "../../ui";
 
 interface MessageInputProps {
@@ -9,8 +10,9 @@ interface MessageInputProps {
   channelName?: string;
 }
 
-// Sends over REST and appends the returned (decrypted) message to the store.
-// Phase 3 will replace the append with a socket broadcast.
+// Sends live over the socket; the server persists + broadcasts back (handled in
+// ChannelView), so there's nothing to append here. Falls back to REST if the
+// socket isn't connected, appending the returned message directly.
 const MessageInput: React.FC<MessageInputProps> = ({ channelId, channelName }) => {
   const [text, setText] = React.useState("");
   const [sending, setSending] = React.useState(false);
@@ -20,6 +22,13 @@ const MessageInput: React.FC<MessageInputProps> = ({ channelId, channelName }) =
     e.preventDefault();
     const trimmed = text.trim();
     if (!trimmed || sending) return;
+
+    if (socketSend(channelId, trimmed)) {
+      setText("");
+      return;
+    }
+
+    // Socket unavailable — persist over REST and append the result locally.
     setSending(true);
     try {
       const message = await messageService.send(channelId, trimmed);

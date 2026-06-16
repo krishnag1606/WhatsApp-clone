@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import styles from "./app-shell.module.scss";
 import { useStore } from "../../store/store";
 import { communityService } from "../../services/CommunityService";
+import { connectSocket, disconnectSocket } from "../../services/socketService";
 import CommunityRail from "../community-rail/CommunityRail";
 import ChannelSidebar from "../channel-sidebar/ChannelSidebar";
 import ChannelView from "../channel-view/ChannelView";
@@ -14,8 +15,24 @@ import JoinCommunityModal from "../modals/JoinCommunityModal";
 // The logged-in layout: community rail | channel sidebar | routed main pane.
 const AppShell: React.FC = () => {
   const setCommunities = useStore((s) => s.setCommunities);
+  const setSocket = useStore((s) => s.setSocket);
   const [createOpen, setCreateOpen] = React.useState(false);
   const [joinOpen, setJoinOpen] = React.useState(false);
+
+  // Open the authenticated real-time connection for the whole logged-in
+  // session; channel rooms are joined/left in ChannelView.
+  React.useEffect(() => {
+    try {
+      setSocket(connectSocket());
+    } catch (error) {
+      // Real-time is best-effort; never let it take down the app shell.
+      console.warn("Socket connection failed", error);
+    }
+    return () => {
+      disconnectSocket();
+      setSocket(null);
+    };
+  }, [setSocket]);
 
   const loadCommunities = React.useCallback(async () => {
     try {

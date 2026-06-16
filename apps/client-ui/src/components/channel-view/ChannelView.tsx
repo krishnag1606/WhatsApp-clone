@@ -3,16 +3,22 @@ import { useParams } from "react-router-dom";
 import styles from "./channel-view.module.scss";
 import { useStore } from "../../store/store";
 import { messageService } from "../../services/MessageService";
+import {
+  joinChannel,
+  leaveChannel,
+  onNewMessage,
+} from "../../services/socketService";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 
 // Main pane for a single channel: header + message list + input.
-// Loads history over REST (live updates arrive in Phase 3).
+// History loads over REST; live messages arrive over the socket room.
 const ChannelView: React.FC = () => {
   const { channelId } = useParams();
   const channels = useStore((s) => s.channels);
   const messages = useStore((s) => s.messages);
   const setMessages = useStore((s) => s.setMessages);
+  const addMessage = useStore((s) => s.addMessage);
   const setActiveChannelId = useStore((s) => s.setActiveChannelId);
   const [loading, setLoading] = React.useState(false);
 
@@ -34,6 +40,20 @@ const ChannelView: React.FC = () => {
     setActiveChannelId(channelId ?? null);
     loadMessages();
   }, [channelId, loadMessages, setActiveChannelId]);
+
+  // Join the channel's socket room while it's open and append live messages
+  // (the server broadcasts to the sender too; addMessage dedups by _id).
+  React.useEffect(() => {
+    if (!channelId) return;
+    joinChannel(channelId);
+    const off = onNewMessage((msg) => {
+      if (msg.channelId === channelId) addMessage(msg);
+    });
+    return () => {
+      off();
+      leaveChannel(channelId);
+    };
+  }, [channelId, addMessage]);
 
   if (!channelId) return null;
 

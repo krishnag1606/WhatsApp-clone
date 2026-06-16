@@ -27,7 +27,13 @@ export const useStore = create<IStore>((set) => ({
   messages: [],
   setMessages: (messages: IMessage[]) => set({ messages }),
   addMessage: (message: IMessage) =>
-    set((state) => ({ messages: [...state.messages, message] })),
+    set((state) =>
+      // Dedup: the socket broadcasts back to the sender too, and a REST send
+      // may also append, so guard against inserting the same message twice.
+      state.messages.some((m) => m._id === message._id)
+        ? {}
+        : { messages: [...state.messages, message] }
+    ),
 
   // Socket (Phase 3)
   socket: null,
