@@ -17,7 +17,7 @@ const Messages = () => {
     socket?.current?.on("getMessage", (data: IMessage) => {
       setNewMessage(data);
     });
-  }, []);
+  }, [socket]);
 
   React.useEffect(() => {
     const el = document.querySelector(`.${styles.wrapper}`);
@@ -36,7 +36,7 @@ const Messages = () => {
         setNewMessage(undefined);
       }
     }
-  }, [newMessage]);
+  }, [newMessage, credentials?.sub, conversation?.conversationId, messages, setMessages]);
 
   return (
     <div className={styles.wrapper}>

@@ -1,5 +1,5 @@
 import { Api } from "@common/shared";
-import { IConversation, IMessage } from "../../store";
+import { IMessage } from "../../store";
 
 // TODO: Update this URL to match your backend server
 // You can also use environment variables: process.env.REACT_APP_API_BASE_URL

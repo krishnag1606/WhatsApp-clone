@@ -3,15 +3,13 @@ import ChatInputSection from "../chat-input-section/ChatInputSection";
 import Header from "../header/Header";
 import Messages from "../messages/Messages";
 
-import styles from "./selected-chat.module.scss";
 import { useStore } from "../../store/store";
-import { IMessage, IStore } from "../../store/IStore";
+import { IStore } from "../../store/IStore";
 import { conversationService } from "../../services/conversion/ConversationService";
 import React from "react";
 // import { Thing, Header } from "@common/shared";
 
 const SelectedChat = () => {
-  const [allMessages, setAllMessages] = React.useState<IMessage[]>([]);
   const currentConversation = useStore((state: IStore) => state.conversation);
   const setConversation = useStore((state: IStore) => state.setConversation);
 
@@ -47,7 +45,8 @@ const SelectedChat = () => {
     setTimeout(() => {
       getConversation();
     }, 100);
-  }, [currentConversation?.conversationId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentConversation?.conversationId, setConversation, setMessages]);
 
   return (
     <div>
