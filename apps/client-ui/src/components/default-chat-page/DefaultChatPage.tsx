@@ -9,8 +9,8 @@ const DefaultChatPage = () => {
         src={defaultImage}
         alt="Default"
       />
-      <h1>Download WhatsApp for your Device</h1>
-      <p>Make calls and get a faster experience with our desktop App</p>
+      <h1>Welcome to Flux</h1>
+      <p>Select a chat to start messaging in retro style</p>
     </div>
   );
 };
