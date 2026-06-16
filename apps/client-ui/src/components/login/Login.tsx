@@ -1,11 +1,11 @@
 import React from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import styles from "./login.module.scss";
-import icon from "../../assets/whatsApp.svg";
 import { jwtDecode } from "jwt-decode";
 import { useStore } from "../../store/store";
 import { ICredentials, IStore } from "../../store";
 import { AddUserService } from "../../services/add-user/AddUserService";
+import { PixelCard } from "../../ui";
 
 const LoginPage: React.FC = () => {
   const setCredentials = useStore((state: IStore) => state.setCredentials);
@@ -13,41 +13,39 @@ const LoginPage: React.FC = () => {
   const handleLoginSuccess = async (response: any) => {
     try {
       const decodedToken: ICredentials = jwtDecode(response?.credential);
-      
-      console.log("🔐 Login successful:", decodedToken.given_name);
       setCredentials(decodedToken);
-
       const addUserService = new AddUserService();
       await addUserService.addUser(decodedToken);
-      
-      console.log("✅ User added to database");
     } catch (error) {
-      console.error("❌ Login error:", error);
+      console.error("Login error:", error);
     }
-  };
-
-  const handleLoginFailure = () => {
-    console.error("❌ Google Login Failed");
   };
 
   return (
     <div className={styles.container}>
-      <div className={styles.box}>
-        <img className={styles.logo} src={icon} alt="Flux" />
-        <h1>Log into Flux</h1>
-        <div>
-          Message privately with friends and family using Flux on your browser.
+      <PixelCard title="FLUX // MESSENGER" variant="primary">
+        <div className={styles.inner}>
+          <div className={styles.logoMark} aria-hidden="true">
+            <span className={styles.logoF}>F</span>
+            <span className={styles.logoL}>L</span>
+            <span className={styles.logoU}>U</span>
+            <span className={styles.logoX}>X</span>
+          </div>
+
+          <h1 className={styles.title}>Log into Flux</h1>
+
+          <p className={styles.subtitle}>
+            Message privately with friends and family using Flux on your browser.
+          </p>
+
+          <hr className={styles.divider} />
+
+          <GoogleLogin
+            onSuccess={handleLoginSuccess}
+            onError={() => console.error("Google Login Failed")}
+          />
         </div>
-        <div style={{ fontSize: '12px', color: '#666', textAlign: 'center' }}>
-          {/* TODO: Update this message based on your setup */}
-          running on port 8000
-        </div>
-        <hr />
-        <GoogleLogin
-          onSuccess={handleLoginSuccess}
-          onError={handleLoginFailure}
-        />
-      </div>
+      </PixelCard>
     </div>
   );
 };

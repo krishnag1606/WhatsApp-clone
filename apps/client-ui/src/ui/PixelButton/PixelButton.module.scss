@@ -1,0 +1,118 @@
+@use '../../styles/tokens' as *;
+
+.button {
+  font-family: $font-display;
+  font-size: $font-size-xs;
+  line-height: $line-height-display;
+  border: $border-width-base solid #000;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  white-space: nowrap;
+  user-select: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition:
+    transform $transition-fast,
+    box-shadow $transition-fast;
+
+  &:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: none !important;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+// ── Sizes ─────────────────────────────────────────────────────────────────────
+.sm {
+  padding: 6px 10px;
+  font-size: 8px;
+}
+
+.md {
+  padding: 10px 18px;
+}
+
+.lg {
+  padding: 14px 26px;
+  font-size: 12px;
+}
+
+// ── Variants ──────────────────────────────────────────────────────────────────
+.primary {
+  background: $color-primary;
+  color: #fff;
+  box-shadow: 4px 4px 0 #000;
+
+  &:hover:not(:disabled) { background: #ff338a; }
+}
+
+.cyan {
+  background: $color-secondary;
+  color: #000;
+  box-shadow: 4px 4px 0 #000;
+
+  &:hover:not(:disabled) { background: #33f8ff; }
+}
+
+.lime {
+  background: $color-success;
+  color: #000;
+  box-shadow: 4px 4px 0 #000;
+
+  &:hover:not(:disabled) { background: #5cff3a; }
+}
+
+.yellow {
+  background: $color-accent;
+  color: #000;
+  box-shadow: 4px 4px 0 #000;
+
+  &:hover:not(:disabled) { background: #fff033; }
+}
+
+.ghost {
+  background: transparent;
+  color: $color-primary;
+  border-color: $color-primary;
+  box-shadow: 4px 4px 0 $color-primary;
+
+  &:hover:not(:disabled) { background: rgba(255, 0, 110, 0.1); }
+}
+
+.danger {
+  background: #ff3030;
+  color: #fff;
+  box-shadow: 4px 4px 0 #000;
+
+  &:hover:not(:disabled) { background: #ff5555; }
+}
+
+// Icon-only: square, no text, transparent until hover
+.icon {
+  background: transparent;
+  color: $color-text-secondary;
+  border: 2px solid transparent;
+  box-shadow: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  text-transform: none;
+  letter-spacing: 0;
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: $color-border-dim;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.86);
+    box-shadow: none !important;
+  }
+}

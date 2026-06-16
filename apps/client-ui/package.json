@@ -21,7 +21,8 @@
     "zustand": "^4.4.1",
     "react-icons": "^4.11.0",
     "@common/shared": "workspace:*",
-    "socket.io-client": "^4.7.2"
+    "socket.io-client": "^4.7.2",
+    "pixelarticons": "^1.8.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11"

@@ -1,0 +1,64 @@
+@use '../../styles/tokens' as *;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+  width: 100%;
+}
+
+.label {
+  font-family: $font-display;
+  font-size: 8px;
+  color: $color-text-secondary;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+// Inset / beveled look: heavy inner shadow on top-left edge
+.inputRow {
+  display: flex;
+  align-items: center;
+  background: #080010;
+  border: $border-width-base solid #000;
+  box-shadow:
+    inset 2px 2px 0 rgba(0, 0, 0, 0.9),
+    inset -2px -2px 0 rgba(255, 255, 255, 0.04);
+  padding: 0 $space-3;
+  gap: $space-2;
+  transition: border-color $transition-base, box-shadow $transition-base;
+
+  &:focus-within {
+    border-color: $color-secondary;
+    box-shadow:
+      inset 2px 2px 0 rgba(0, 0, 0, 0.9),
+      inset -2px -2px 0 rgba(0, 245, 255, 0.08),
+      0 0 0 1px $color-secondary;
+  }
+}
+
+.iconSlot {
+  color: $color-text-muted;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: $color-text-primary;
+  font-family: $font-body;
+  font-size: $font-size-base;
+  padding: $space-2 0;
+  line-height: $line-height-body;
+
+  &::placeholder { color: $color-text-muted; }
+
+  // Remove browser search decoration
+  &::-webkit-search-cancel-button,
+  &::-webkit-search-decoration { display: none; }
+}

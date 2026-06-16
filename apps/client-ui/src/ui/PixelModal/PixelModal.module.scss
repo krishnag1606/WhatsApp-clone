@@ -1,0 +1,130 @@
+@use '../../styles/tokens' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // CRT scanline effect on backdrop
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.06) 0px,
+      rgba(0, 0, 0, 0.06) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+}
+
+.window {
+  display: flex;
+  flex-direction: column;
+  border: $border-width-thick solid #000;
+  background: $color-bg-surface;
+  box-shadow: 6px 6px 0 #000;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+// ── Title bar — hot-pink → deep-purple gradient ───────────────────────────────
+.titleBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 6px;
+  background: linear-gradient(to right, #ff006e, #9900ff);
+  border-bottom: $border-width-base solid #000;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.titleContent {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.titleIcon {
+  font-size: 11px;
+  color: $color-accent;
+}
+
+.titleText {
+  font-family: $font-display;
+  font-size: 9px;
+  color: #fff;
+  letter-spacing: 0.08em;
+  line-height: $line-height-display;
+}
+
+// ── Win98-style control buttons ───────────────────────────────────────────────
+.controls {
+  display: flex;
+  gap: 3px;
+}
+
+%ctrl {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #000;
+  font-size: 10px;
+  font-family: sans-serif;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 1px 1px 0 #000;
+  transition: transform $transition-fast, box-shadow $transition-fast;
+
+  &:active {
+    transform: translate(1px, 1px);
+    box-shadow: none;
+  }
+}
+
+.controlMin {
+  @extend %ctrl;
+  background: $color-accent;
+  color: #000;
+}
+
+.controlMax {
+  @extend %ctrl;
+  background: $color-success;
+  color: #000;
+}
+
+.controlClose {
+  @extend %ctrl;
+  background: #ff3030;
+  color: #fff;
+
+  &:hover { background: #ff5555; }
+}
+
+// ── Body & footer ─────────────────────────────────────────────────────────────
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space-5;
+  color: $color-text-primary;
+  font-family: $font-body;
+  font-size: $font-size-base;
+  line-height: $line-height-body;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: $space-3;
+  padding: $space-3 $space-5;
+  border-top: $border-width-thin solid $color-border-dim;
+  background: $color-bg-elevated;
+  flex-shrink: 0;
+}

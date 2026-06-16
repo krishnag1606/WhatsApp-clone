@@ -1,44 +1,44 @@
+@use '../../styles/tokens' as *;
+
 .wrapper {
   height: 100%;
   width: 4%;
-  min-width: 60px;
-  background-color: #1f2c33;
-  border-right: 1px solid rgba(204, 204, 204, 0.2);
+  min-width: 56px;
+  background-color: $color-bg-base;
+  border-right: $border-width-thin solid $color-border-dim;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-sizing: border-box;
-  padding: 18px 0;
+  padding: $space-3 0;
   justify-content: space-between;
+  box-sizing: border-box;
 }
 
 .iconContainer {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-button {
-  background-color: transparent;
-  cursor: pointer;
-  border: none;
-  outline: none;
-  width: 40px;
-  height: 40px;
-  padding: 8px;
-}
-
-.icon {
-  background-color: #374247;
-  display: flex;
+  gap: $space-2;
   align-items: center;
-  justify-content: center;
-  border-radius: 50%;
+}
+
+// Active tab indicator: left-side hot-pink bar
+.active {
+  border-left: 3px solid $color-primary !important;
+  border-radius: 0 !important;
+  background: rgba(255, 0, 110, 0.1) !important;
+  box-shadow: none;
 }
 
 .profilePicture {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
+  border: 2px solid $color-primary;
+  box-shadow: 0 0 6px $color-primary-glow;
   cursor: pointer;
+  object-fit: cover;
+
+  &:hover {
+    box-shadow: $glow-primary;
+  }
 }

@@ -1,64 +1,17 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-  aud: {
-    type: String,
-    required: true,
+// The canonical user id is the Google `sub`, used directly as _id so that
+// roles, bans, and moderation can reference a stable, server-verified identity.
+const userSchema = new mongoose.Schema(
+  {
+    _id: { type: String, required: true }, // Google sub
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    picture: { type: String },
   },
-  azp: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  email_verified: {
-    type: Boolean,
-    required: true,
-  },
-  exp: {
-    type: Number,
-    required: true,
-  },
-  family_name: {
-    type: String,
-    required: true,
-  },
-  given_name: {
-    type: String,
-    required: true,
-  },
-  iat: {
-    type: Number,
-    required: true,
-  },
-  iss: {
-    type: String,
-    required: true,
-  },
-  jti: {
-    type: String,
-    required: true,
-  },
-  name: {
-    type: String,
-    required: true,
-  },
-  nbf: {
-    type: Number,
-    required: true,
-  },
-  picture: {
-    type: String,
-    required: true,
-  },
-  sub: {
-    type: String,
-    required: true,
-  },
-});
+  { _id: false, timestamps: true }
+);
 
-const user = mongoose.model("user", userSchema);
+const User = mongoose.model("User", userSchema);
 
-export default user;
+export default User;

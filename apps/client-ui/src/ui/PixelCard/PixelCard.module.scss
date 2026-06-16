@@ -1,0 +1,76 @@
+@use '../../styles/tokens' as *;
+
+.card {
+  border: $border-width-base solid transparent;
+  background: $color-bg-elevated;
+  border-radius: $border-radius-none;
+  overflow: hidden;
+}
+
+.shadow {
+  box-shadow: 6px 6px 0 #000;
+}
+
+// ── Title bar ─────────────────────────────────────────────────────────────────
+.titleBar {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-3;
+  border-bottom-width: $border-width-base;
+  border-bottom-style: solid;
+  user-select: none;
+}
+
+.titleIcon {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.titleText {
+  font-family: $font-display;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  line-height: $line-height-display;
+}
+
+.body {
+  padding: $space-5;
+}
+
+// ── Variants ──────────────────────────────────────────────────────────────────
+.primary {
+  border-color: $color-primary;
+
+  .titleBar {
+    background: $color-primary;
+    border-bottom-color: #cc0055;
+    color: #fff;
+  }
+
+  .titleIcon { color: $color-accent; }
+}
+
+.cyan {
+  border-color: $color-secondary;
+
+  .titleBar {
+    background: $color-secondary;
+    border-bottom-color: #00c4cc;
+    color: #000;
+  }
+
+  .titleIcon { color: #000; }
+}
+
+.yellow {
+  border-color: $color-accent;
+
+  .titleBar {
+    background: $color-accent;
+    border-bottom-color: #ccb800;
+    color: #000;
+  }
+
+  .titleIcon { color: #000; }
+}
