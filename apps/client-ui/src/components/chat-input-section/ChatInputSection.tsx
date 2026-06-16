@@ -1,17 +1,15 @@
 import React from "react";
 import styles from "./chat-input-section.module.scss";
-import { FiPlus } from "react-icons/fi";
 import { BsEmojiLaughing } from "react-icons/bs";
 import { FaMicrophone } from "react-icons/fa";
 import { useStore } from "../../store/store";
 import { IMessage, IStore } from "../../store";
 import { conversationService } from "../../services/conversion/ConversationService";
+import { PixelButton, PixelInput } from "../../ui";
+import { ReactComponent as PlusIcon } from "pixelarticons/svg/plus.svg";
+import { ReactComponent as SendIcon } from "pixelarticons/svg/message-arrow-right.svg";
 
 const ChatInputSection = () => {
-  /**
-   * Store
-   */
-
   const currentConversation = useStore((state: IStore) => state.conversation);
   const messages = useStore((state: IStore) => state.messages);
   const setMessages = useStore((state: IStore) => state.setMessages);
@@ -20,11 +18,12 @@ const ChatInputSection = () => {
   const [text, setText] = React.useState("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const text = e.target.value;
-    setText(text);
+    setText(e.target.value);
   };
 
   const sendText = async () => {
+    if (!text.trim()) return;
+
     const message: IMessage = {
       senderId: currentConversation?.senderId!,
       receiverId: currentConversation?.receiverId!,
@@ -34,6 +33,7 @@ const ChatInputSection = () => {
     };
 
     setMessages([...messages, message]);
+    setText("");
 
     try {
       socket?.current?.emit("sendMessage", message);
@@ -41,34 +41,46 @@ const ChatInputSection = () => {
     } catch (error) {
       throw error;
     }
-
-    // Make the api call
-
-    setText("");
   };
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.plus}>
-        <FiPlus color="#adbac1" size={28} />
-      </div>
-      <div className={styles.search}>
-        <BsEmojiLaughing color="#adbac1" size={18} />
-        <input
-          value={text}
-          onChange={handleInputChange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              sendText();
-            }
-          }}
-          type="text"
-          placeholder="Search"
+      <PixelButton variant="icon" type="button" className={styles.action}>
+        <PlusIcon
+          width={22}
+          height={22}
+          style={{ color: "var(--color-text-muted)" }}
         />
-      </div>
-      <div className={styles.mic}>
-        <FaMicrophone color="#adbac1" size={18} />
-      </div>
+      </PixelButton>
+
+      <PixelInput
+        wrapperClassName={styles.inputWrapper}
+        icon={<BsEmojiLaughing size={18} color="var(--color-text-muted)" />}
+        value={text}
+        onChange={handleInputChange}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") sendText();
+        }}
+        type="text"
+        placeholder="Type a message..."
+      />
+
+      {text.trim() ? (
+        <PixelButton
+          variant="primary"
+          size="sm"
+          type="button"
+          className={styles.sendBtn}
+          onClick={sendText}
+        >
+          <SendIcon width={14} height={14} style={{ color: "#fff" }} />
+          <span>SEND</span>
+        </PixelButton>
+      ) : (
+        <PixelButton variant="icon" type="button" className={styles.action}>
+          <FaMicrophone size={20} color="var(--color-text-muted)" />
+        </PixelButton>
+      )}
     </div>
   );
 };

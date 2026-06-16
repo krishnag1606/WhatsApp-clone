@@ -1,3 +1,46 @@
+:root {
+  /* ── Color palette ─────────────────────────────────────────────────── */
+  --color-bg-base:         #0a0014;
+  --color-bg-surface:      #12002a;
+  --color-bg-elevated:     #1e0040;
+
+  --color-primary:         #ff006e;
+  --color-primary-glow:    rgba(255, 0, 110, 0.35);
+  --color-secondary:       #00f5ff;
+  --color-secondary-glow:  rgba(0, 245, 255, 0.35);
+  --color-lime:            #39ff14;
+  --color-yellow:          #ffe600;
+  --color-orange:          #ff9500;
+  --color-danger:          #ff3030;
+
+  --color-text-primary:    #ffffff;
+  --color-text-secondary:  #c8b8ff;
+  --color-text-muted:      #6b5b9e;
+
+  --color-bubble-sent:     #3d0070;
+  --color-bubble-received: #1e0040;
+
+  /* ── Typography ────────────────────────────────────────────────────── */
+  --font-display:   'Press Start 2P', monospace;
+  --font-body:      'VT323', monospace;
+
+  /* ── Borders ───────────────────────────────────────────────────────── */
+  --border-thin:    2px solid var(--color-primary);
+  --border-base:    3px solid var(--color-primary);
+  --border-thick:   4px solid var(--color-primary);
+  --border-dim:     2px solid rgba(255, 0, 110, 0.35);
+
+  /* ── Shadows ───────────────────────────────────────────────────────── */
+  --shadow-chunky:       4px 4px 0 #000;
+  --shadow-chunky-pink:  4px 4px 0 var(--color-primary);
+  --shadow-chunky-cyan:  4px 4px 0 var(--color-secondary);
+  --shadow-window:       6px 6px 0 #000;
+
+  /* ── Spacing ───────────────────────────────────────────────────────── */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;
+  --space-4: 16px;  --space-5: 24px;  --space-6: 32px;
+}
+
 body {
   margin: 0;
   font-family: 'VT323', monospace;

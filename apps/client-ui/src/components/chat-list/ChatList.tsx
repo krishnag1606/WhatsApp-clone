@@ -1,60 +1,48 @@
 import styles from "./chat-list.module.scss";
-import { RiChatNewFill } from "react-icons/ri";
 import { IoEllipsisVertical } from "react-icons/io5";
-import { IoSearchOutline } from "react-icons/io5";
 import React from "react";
 import { ICredentials, useStore } from "../../store";
-import { IoMdClose } from "react-icons/io";
 import { GetUserService } from "../../services/get-user/GetUserService";
 import {
   conversationService,
   IConversationResponse,
 } from "../../services/conversion/ConversationService";
+import { PixelButton, PixelInput } from "../../ui";
+import { ReactComponent as SearchIcon } from "pixelarticons/svg/search.svg";
+import { ReactComponent as MessagePlusIcon } from "pixelarticons/svg/message-plus.svg";
+import { ReactComponent as CloseIcon } from "pixelarticons/svg/close.svg";
 
 const ChatList = () => {
   const [showDialog, setShowDialog] = React.useState(false);
   const [filteredUsers, setFilteredUsers] = React.useState<
     ICredentials[] | null
   >(null);
-
   const [allConversations, setAllConversations] = React.useState<
     IConversationResponse[]
   >([]);
 
   const isProfileView = useStore((state) => state.profileView);
   const setProfileView = useStore((state) => state.setProfileView);
-
   const credentials = useStore((state) => state.credentials);
-
   const users = useStore((state) => state.users);
   const setUsers = useStore((state) => state.setUsers);
-
   const selectedChat = useStore((state) => state.selectedChat);
   const setSelectedChat = useStore((state) => state.setSelectedChat);
-
   const setConversation = useStore((state) => state.setConversation);
-
   const messages = useStore((state) => state.messages);
-
   const socket = useStore((state) => state.socket);
-
-  //  Active users
   const setActiveUsers = useStore((state) => state.setActiveUsers);
-  // const activeUsers = useStore((state) => state.socket);
 
-  const handleOptionClick = () => {
-    setShowDialog(!showDialog);
-  };
+  const optionRef = React.useRef<HTMLDivElement>(null);
+  const optionButtonRef = React.useRef<HTMLButtonElement>(null);
 
-  const handleBackClick = () => {
-    setProfileView(false);
-  };
+  const handleOptionClick = () => setShowDialog(!showDialog);
+  const handleBackClick = () => setProfileView(false);
 
   const handleChatClick = async (
     user: ICredentials | null,
     e?: React.MouseEvent<HTMLButtonElement | HTMLDivElement>
   ) => {
-    // prevent event from bubbling
     e?.stopPropagation();
     setSelectedChat(user);
     if (user) {
@@ -71,39 +59,31 @@ const ChatList = () => {
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const searchValue = e.target.value;
-    const filteredUsers = users?.filter((user) =>
-      user.given_name.toLowerCase().includes(searchValue.toLowerCase())
+    const v = e.target.value;
+    setFilteredUsers(
+      v === ""
+        ? users
+        : users?.filter((u) =>
+            u.given_name.toLowerCase().includes(v.toLowerCase())
+          ) ?? null
     );
-
-    if (searchValue === "") {
-      setFilteredUsers(users);
-    } else {
-      setFilteredUsers(filteredUsers);
-    }
   };
 
-  // Set the position of the option dialog based on the button position using ref
-  const optionRef = React.useRef<HTMLDivElement>(null);
-  const optionButtonRef = React.useRef<HTMLButtonElement>(null);
-
-  async function getUsers(): Promise<void> {
-    const getUsersService = new GetUserService();
+  async function getUsers() {
     try {
-      const users = await getUsersService.getUsers();
-      setUsers(users);
+      setUsers(await new GetUserService().getUsers());
     } catch (error) {
       throw error;
     }
   }
 
-  async function getAllConversations(): Promise<void> {
+  async function getAllConversations() {
     try {
-      const conversations = await conversationService.getAllConversations({
+      const convs = await conversationService.getAllConversations({
         senderId: credentials?.sub!,
         receiverId: credentials?.sub!,
       });
-      setAllConversations([...conversations]);
+      setAllConversations([...convs]);
     } catch (error) {
       throw error;
     }
@@ -116,25 +96,19 @@ const ChatList = () => {
   }, []);
 
   React.useEffect(() => {
-    setTimeout(() => {
-      getAllConversations();
-    }, 100);
+    setTimeout(() => getAllConversations(), 100);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
-  React.useEffect(() => {
-    setFilteredUsers(users);
-  }, [users]);
+  React.useEffect(() => { setFilteredUsers(users); }, [users]);
 
   React.useEffect(() => {
     if (showDialog) {
-      const optionDialog = optionRef.current;
-      const optionButton = optionButtonRef.current;
-
-      const rect = optionButton?.getBoundingClientRect()!;
-      if (optionDialog) {
-        optionDialog.style.left = rect.left + "px";
-        optionDialog.style.top = rect.bottom + "px";
+      const rect = optionButtonRef.current?.getBoundingClientRect()!;
+      const dialog = optionRef.current;
+      if (dialog) {
+        dialog.style.left = rect.left + "px";
+        dialog.style.top = rect.bottom + "px";
       }
     }
   }, [showDialog]);
@@ -152,36 +126,50 @@ const ChatList = () => {
         <>
           {/* Header */}
           <div className={styles.header}>
-            <div className={styles.chats}>
-              <h2>Chats</h2>
-            </div>
+            <h2 className={styles.panelTitle}>Chats</h2>
             <div className={styles.tools}>
-              <button className={styles.button}>
-                <RiChatNewFill color="#adbac1" size={20} />
-              </button>
-              <button
+              <PixelButton variant="icon" title="New chat">
+                <MessagePlusIcon
+                  width={20}
+                  height={20}
+                  style={{ color: "var(--color-text-secondary)" }}
+                />
+              </PixelButton>
+              <PixelButton
+                variant="icon"
                 ref={optionButtonRef}
                 onClick={handleOptionClick}
-                className={styles.button}
+                title="Menu"
               >
-                <IoEllipsisVertical color="#adbac1" size={20} />
-              </button>
+                <IoEllipsisVertical
+                  size={20}
+                  color="var(--color-text-secondary)"
+                />
+              </PixelButton>
               {showDialog && <OptionDialog ref={optionRef} />}
             </div>
           </div>
-          {/* Search and filters */}
-          <div className={styles.search}>
-            <IoSearchOutline color="#adbac1" size={18} />
-            <input
-              onChange={handleSearchChange}
-              type="text"
+
+          {/* Search */}
+          <div className={styles.searchWrapper}>
+            <PixelInput
+              icon={
+                <SearchIcon
+                  width={16}
+                  height={16}
+                  style={{ color: "var(--color-text-muted)" }}
+                />
+              }
+              type="search"
               placeholder="Search"
+              onChange={handleSearchChange}
             />
           </div>
+
           {/* Chat list */}
           <div className={styles.chatList}>
             {Array.isArray(filteredUsers) &&
-              filteredUsers?.map(
+              filteredUsers.map(
                 (user, index) =>
                   user.sub !== credentials?.sub && (
                     <div
@@ -204,14 +192,11 @@ const ChatList = () => {
                         <div className={styles.chatDetails}>
                           <h4>{user.given_name}</h4>
                           <p>
-                            {
-                              allConversations.find((conv) => {
-                                return (
-                                  conv?.members.includes(user.sub) &&
-                                  conv?.members.includes(credentials!.sub)
-                                );
-                              })?.message
-                            }
+                            {allConversations.find(
+                              (conv) =>
+                                conv?.members.includes(user.sub) &&
+                                conv?.members.includes(credentials!.sub)
+                            )?.message}
                           </p>
                         </div>
                       </button>
@@ -230,48 +215,53 @@ const ChatList = () => {
   );
 };
 
-const ProfileView = (props: {
+const ProfileView = ({
+  handleBackClick,
+  credentials,
+}: {
   handleBackClick: () => void;
   credentials: ICredentials | null;
-}) => {
-  return (
-    <div className={styles.profileView}>
-      <div className={styles.headerWrapper}>
-        <h2 className={styles.profile}>Profile</h2>
-        <button className={styles.backButton} onClick={props.handleBackClick}>
-          <IoMdClose color="#adbac1" size={22} />
-        </button>
-      </div>
-      <div className={styles.profilePicture}>
-        {props.credentials?.picture && (
-          <img
-            src={props?.credentials?.picture}
-            // src={`https://lh3.googleusercontent.com/a/ACg8ocI3utg5ppH18592-WF3IYkBATpwsobcQw_roovCE36tIQM7QIg=s96-c`}
-            alt="profile"
-          />
-        )}
-      </div>
-      <div className={styles.profileDetails}>
-        <caption>Your name</caption>
-        <h3>{props.credentials?.given_name}</h3>
-        <p>{props.credentials?.email}</p>
-        <p>
-          This is not your username or PIN. This name will be visible to your
-          Flux contacts.
-        </p>
-      </div>
+}) => (
+  <div className={styles.profileView}>
+    <div className={styles.headerWrapper}>
+      <h2 className={styles.profile}>Profile</h2>
+      <PixelButton variant="icon" onClick={handleBackClick}>
+        <CloseIcon
+          width={22}
+          height={22}
+          style={{ color: "var(--color-text-secondary)" }}
+        />
+      </PixelButton>
     </div>
-  );
-};
+    <div className={styles.profilePicture}>
+      {credentials?.picture && (
+        <img src={credentials.picture} alt="profile" />
+      )}
+    </div>
+    <div className={styles.profileDetails}>
+      <caption>Your name</caption>
+      <h3>{credentials?.given_name}</h3>
+      <p>{credentials?.email}</p>
+      <p>
+        This is not your username or PIN. This name will be visible to your Flux
+        contacts.
+      </p>
+    </div>
+  </div>
+);
 
-const OptionDialog = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
-  return (
-    <div ref={ref} className={styles.optionDialog}>
-      <button className={styles.optionButton}>Option 1</button>
-      <button className={styles.optionButton}>Option 2</button>
-      <button className={styles.optionButton}>Option 3</button>
-    </div>
-  );
-});
+const OptionDialog = React.forwardRef<HTMLDivElement, {}>((_, ref) => (
+  <div ref={ref} className={styles.optionDialog}>
+    <PixelButton variant="ghost" size="sm" className={styles.optionButton}>
+      Settings
+    </PixelButton>
+    <PixelButton variant="ghost" size="sm" className={styles.optionButton}>
+      New Group
+    </PixelButton>
+    <PixelButton variant="ghost" size="sm" className={styles.optionButton}>
+      Log Out
+    </PixelButton>
+  </div>
+));
 
 export default ChatList;

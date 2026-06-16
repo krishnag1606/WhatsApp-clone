@@ -1,55 +1,49 @@
+import React from "react";
 import { IStore } from "../../store/IStore";
 import { useStore } from "../../store/store";
 import styles from "./toolbar.module.scss";
-import { BsFillChatLeftTextFill } from "react-icons/bs";
-import { MdGroups } from "react-icons/md";
-import { LuCircleDashed } from "react-icons/lu";
-import React from "react";
+import { PixelButton } from "../../ui";
+import { ReactComponent as ChatIcon } from "pixelarticons/svg/chat.svg";
+import { ReactComponent as UsersIcon } from "pixelarticons/svg/users.svg";
+import { ReactComponent as SunIcon } from "pixelarticons/svg/sun.svg";
+
+const TABS = [
+  { Icon: ChatIcon, title: "Chats" },
+  { Icon: UsersIcon, title: "Contacts" },
+  { Icon: SunIcon, title: "Status" },
+];
 
 const ToolBar = () => {
   const credentials = useStore((state: IStore) => state.credentials);
   const profileView = useStore((state: IStore) => state.profileView);
-
   const setProfileView = useStore((state: IStore) => state.setProfileView);
-  const [index, setIndex] = React.useState(0);
-
-  const handleOptionClick = (idx: number) => {
-    setIndex(idx);
-  };
-
-  const handleProfileClick = () => {
-    setProfileView(!profileView);
-  };
+  const [activeIndex, setActiveIndex] = React.useState(0);
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.iconContainer}>
-        <button
-          onClick={() => handleOptionClick(0)}
-          className={index === 0 ? styles.icon : ""}
-        >
-          <BsFillChatLeftTextFill color="#adbac1" size={20} />
-        </button>
-        <button
-          onClick={() => handleOptionClick(1)}
-          className={index === 1 ? styles.icon : ""}
-        >
-          <MdGroups color="#adbac1" size={20} />
-        </button>
-        <button
-          onClick={() => handleOptionClick(2)}
-          className={index === 2 ? styles.icon : ""}
-        >
-          <LuCircleDashed color="#adbac1" size={20} />
-        </button>
+        {TABS.map(({ Icon, title }, i) => (
+          <PixelButton
+            key={title}
+            variant="icon"
+            onClick={() => setActiveIndex(i)}
+            className={activeIndex === i ? styles.active : ""}
+            title={title}
+          >
+            <Icon
+              width={22}
+              height={22}
+              style={{ color: activeIndex === i ? "#ff006e" : "#6b5b9e" }}
+            />
+          </PixelButton>
+        ))}
       </div>
 
       {credentials?.picture && (
-        // eslint-disable-next-line jsx-a11y/img-redundant-alt
         <img
-          onClick={handleProfileClick}
+          onClick={() => setProfileView(!profileView)}
           className={styles.profilePicture}
-          src={credentials?.picture}
+          src={credentials.picture}
           alt="Profile"
         />
       )}

@@ -1,132 +1,73 @@
+@use '../../styles/tokens' as *;
+
 .wrapper {
   width: 28%;
-  min-width: 400px;
+  min-width: 360px;
   height: 100%;
-  background-color: #111b21;
-  border-right: 1px solid rgba(204, 204, 204, 0.2);
-  color: #e9edef;
-}
-
-button {
-  background-color: transparent;
-  cursor: pointer;
-  border: none;
-  outline: none;
-  width: 40px;
-  height: 40px;
-  padding: 8px;
-}
-
-.header {
+  background-color: $color-bg-surface;
+  border-right: $border-width-thin solid $color-border-dim;
+  color: $color-text-primary;
   display: flex;
-  justify-content: space-between;
-  padding: 20px 12px;
-  align-items: center;
-}
-
-h3 {
-  font-weight: bold;
-}
-
-.search {
-  display: flex;
-  align-items: center;
-  padding: 8px 16px;
-  background-color: #202c33;
-  border-radius: 6px;
-  max-width: 95%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-input {
-  background-color: #202c33;
-  border: none;
-  height: 100%;
-  margin-left: 20px;
-  color: #e9edef;
-}
-
-input:focus {
-  outline: none;
-}
-
-.optionDialog {
-  position: absolute;
-  top: 50px;
-  right: 20px;
-  background-color: white;
-  border-radius: 6px;
-  padding: 10px;
-  width: 200px;
-}
-
-.profileView {
-  display: flex;
-  align-items: center;
   flex-direction: column;
-  padding: 22px 22px;
-  gap: 40px;
-
-  h2 {
-    margin: 0;
-  }
-}
-
-.profile {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  gap: 10px;
-  width: 100%;
-  text-align: left;
-  margin: 0;
-}
-
-.headerWrapper {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  width: 100%;
-  padding: 0 px;
-  box-sizing: border-box;
-}
-
-.backButton {
-  color: white;
-}
-
-.profilePicture {
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
   overflow: hidden;
 }
 
-.profileDetails {
+// ── Header ────────────────────────────────────────────────────────────────────
+.header {
   display: flex;
-  flex-direction: column;
-  gap: 22px;
-  justify-content: flex-start;
-  align-items: flex-start;
-  width: 100%;
-  // padding: 0 22px;
-  box-sizing: border-box;
-  h3 {
-    margin: 10px 0;
-  }
+  justify-content: space-between;
+  align-items: center;
+  padding: $space-4 $space-3;
+  border-bottom: $border-width-thin solid $color-border-dim;
+  flex-shrink: 0;
+}
 
-  p {
-    margin: 0;
-    font-size: 14px;
+.panelTitle {
+  font-family: $font-display;
+  font-size: 10px;
+  color: $color-primary;
+  margin: 0;
+  text-shadow: 0 0 8px $color-primary-glow;
+  letter-spacing: 0.08em;
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+}
+
+// ── Search wrapper ────────────────────────────────────────────────────────────
+.searchWrapper {
+  padding: $space-2 $space-3;
+  flex-shrink: 0;
+  border-bottom: $border-width-thin solid $color-border-dim;
+}
+
+// ── Chat list ─────────────────────────────────────────────────────────────────
+.chatList {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chatItem {
+  position: relative;
+  width: 100%;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 68px;
+    right: $space-3;
+    height: 1px;
+    background: $color-border-dim;
   }
 }
 
-caption {
-  font-size: 14px;
-  color: #008069;
+.chatItem:hover,
+.selected {
+  background-color: $color-bg-elevated;
 }
 
 .chat {
@@ -134,76 +75,145 @@ caption {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  padding: 10px 24px;
-  height: 60px;
-  gap: 20px;
+  padding: $space-3;
+  gap: $space-3;
+  background: transparent;
   border: none;
   cursor: pointer;
-}
-
-.chatItem {
-  position: relative;
-  width: 100%;
-}
-
-.chatItem::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 80px;
-  width: 75%;
-  height: 1px;
-  background-color: rgba(204, 204, 204, 0.2); /* Border color */
-}
-
-.chatItem:hover,
-.selected {
-  background-color: #212e36;
-}
-
-.chatItem:hover::before {
-  width: 0;
-  background-color: transparent;
+  color: $color-text-primary;
 }
 
 .profilePictureIcon {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-}
-
-hr {
-  // width: 100%;
-  margin: 0px 0 0px 30px;
-  width: 90%;
-}
-
-.chatList {
-  margin-top: 20px;
+  border: 2px solid $color-border-dim;
+  flex-shrink: 0;
 }
 
 .chatDetails {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  justify-content: flex-start;
-  align-items: flex-start;
+  text-align: left;
+  overflow: hidden;
   width: 100%;
-  // padding: 0 22px;
-  box-sizing: border-box;
-  color: #e9edef;
-  h3 {
-    margin: 5px 0;
+
+  h4 {
+    margin: 0;
+    font-family: $font-display;
+    font-size: 8px;
+    color: $color-text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: $line-height-display;
   }
 
   p {
     margin: 0;
-    font-size: 14px;
+    font-family: $font-body;
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// ── Option dialog ─────────────────────────────────────────────────────────────
+.optionDialog {
+  position: fixed;
+  z-index: 500;
+  background: $color-bg-elevated;
+  border: $border-width-base solid $color-primary;
+  box-shadow: $shadow-chunky;
+  padding: $space-2;
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+  min-width: 160px;
+}
+
+.optionButton {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+// ── Profile view ──────────────────────────────────────────────────────────────
+.profileView {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $space-4;
+  gap: $space-5;
+  flex: 1;
+}
+
+.headerWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.profile {
+  font-family: $font-display;
+  font-size: 10px;
+  color: $color-primary;
+  margin: 0;
+}
+
+.backButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: $space-1;
+}
+
+.profilePicture {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: $border-width-thick solid $color-primary;
+  box-shadow: $glow-primary;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.profileDetails {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+  width: 100%;
+
+  caption {
+    font-family: $font-display;
+    font-size: 8px;
+    color: $color-primary;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  h3 {
+    margin: $space-1 0 0;
+    font-family: $font-display;
+    font-size: 10px;
+    color: $color-text-primary;
+    line-height: $line-height-display;
+  }
+
+  p {
+    margin: 0;
+    font-family: $font-body;
+    font-size: $font-size-base;
+    color: $color-text-secondary;
+    line-height: $line-height-body;
   }
 }
 
 @media screen and (max-width: 768px) {
-  .wrapper {
-    display: none;
-  }
+  .wrapper { display: none; }
 }
