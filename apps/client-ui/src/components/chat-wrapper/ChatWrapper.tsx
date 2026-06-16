@@ -20,7 +20,7 @@ const ChatWrapper = () => {
     return () => {
       socket.current?.disconnect();
     };
-  }, []);
+  }, [setSocket]);
 
   return <>{credentials ? <ChatContainer /> : <LoginPage />}</>;
 };

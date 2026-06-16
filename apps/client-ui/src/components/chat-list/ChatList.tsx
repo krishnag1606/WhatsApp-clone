@@ -32,7 +32,6 @@ const ChatList = () => {
   const selectedChat = useStore((state) => state.selectedChat);
   const setSelectedChat = useStore((state) => state.setSelectedChat);
 
-  const conversation = useStore((state) => state.conversation);
   const setConversation = useStore((state) => state.setConversation);
 
   const messages = useStore((state) => state.messages);
@@ -113,12 +112,14 @@ const ChatList = () => {
   React.useEffect(() => {
     getUsers();
     getAllConversations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
     setTimeout(() => {
       getAllConversations();
     }, 100);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   React.useEffect(() => {
@@ -143,7 +144,7 @@ const ChatList = () => {
     socket?.current?.on("getUsers", (users: ICredentials[]) => {
       setActiveUsers(users);
     });
-  }, [credentials]);
+  }, [credentials, setActiveUsers, socket]);
 
   return (
     <div onClick={(e) => handleChatClick(null, e)} className={styles.wrapper}>
@@ -197,7 +198,7 @@ const ChatList = () => {
                           <img
                             className={styles.profilePictureIcon}
                             src={user.picture}
-                            alt="profile picture"
+                            alt="profile"
                           />
                         )}
                         <div className={styles.chatDetails}>
@@ -246,7 +247,7 @@ const ProfileView = (props: {
           <img
             src={props?.credentials?.picture}
             // src={`https://lh3.googleusercontent.com/a/ACg8ocI3utg5ppH18592-WF3IYkBATpwsobcQw_roovCE36tIQM7QIg=s96-c`}
-            alt="profile picture"
+            alt="profile"
           />
         )}
       </div>

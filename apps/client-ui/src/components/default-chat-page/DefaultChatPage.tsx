@@ -7,7 +7,7 @@ const DefaultChatPage = () => {
       <img
         className={styles.defaultImage}
         src={defaultImage}
-        alt="Default image"
+        alt="Default"
       />
       <h1>Download WhatsApp for your Device</h1>
       <p>Make calls and get a faster experience with our desktop App</p>

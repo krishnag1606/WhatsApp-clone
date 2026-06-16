@@ -122,3 +122,4 @@ dist-storybook/
 # Heft temporary files
 .cache/
 .heft/
+CLAUDE.md

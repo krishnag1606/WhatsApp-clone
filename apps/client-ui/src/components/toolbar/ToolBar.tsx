@@ -45,11 +45,12 @@ const ToolBar = () => {
       </div>
 
       {credentials?.picture && (
+        // eslint-disable-next-line jsx-a11y/img-redundant-alt
         <img
           onClick={handleProfileClick}
           className={styles.profilePicture}
           src={credentials?.picture}
-          alt="Profile picture"
+          alt="Profile"
         />
       )}
     </div>
