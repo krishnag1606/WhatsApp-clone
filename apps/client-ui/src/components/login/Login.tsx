@@ -33,11 +33,10 @@ const LoginPage: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.box}>
-        <img className={styles.logo} src={icon} alt="WhatsApp" />
-        <h1>Log into WhatsApp Web</h1>
+        <img className={styles.logo} src={icon} alt="Flux" />
+        <h1>Log into Flux</h1>
         <div>
-          Message privately with friends and family using WhatsApp on your
-          browser.
+          Message privately with friends and family using Flux on your browser.
         </div>
         <div style={{ fontSize: '12px', color: '#666', textAlign: 'center' }}>
           {/* TODO: Update this message based on your setup */}

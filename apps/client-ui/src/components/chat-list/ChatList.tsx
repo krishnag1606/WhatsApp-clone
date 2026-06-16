@@ -257,7 +257,7 @@ const ProfileView = (props: {
         <p>{props.credentials?.email}</p>
         <p>
           This is not your username or PIN. This name will be visible to your
-          WhatsApp contacts.
+          Flux contacts.
         </p>
       </div>
     </div>
