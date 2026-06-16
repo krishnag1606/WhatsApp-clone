@@ -8,7 +8,7 @@ import { memberService } from "../../services/MemberService";
 import { clearToken } from "../../services/apiClient";
 import { IChannel } from "../../store/IStore";
 import { Permissions, hasPermission } from "../../constants/permissions";
-import { PixelButton } from "../../ui";
+import { PixelButton, PixelIcon } from "../../ui";
 import RolesModal from "../modals/RolesModal";
 import MembersModal from "../modals/MembersModal";
 import AuditLogModal from "../modals/AuditLogModal";
@@ -171,9 +171,15 @@ const ChannelSidebar: React.FC = () => {
               }`}
               onClick={() => navigate(`/c/${communityId}/${ch._id}`)}
             >
-              <span className={styles.hash}>
-                {ch.type === "announcement" ? "📣" : "#"}
-              </span>
+              {ch.type === "announcement" ? (
+                <PixelIcon
+                  name="speaker"
+                  size={16}
+                  className={styles.announceIcon}
+                />
+              ) : (
+                <span className={styles.hash}>#</span>
+              )}
               {ch.name}
             </button>
           ))}

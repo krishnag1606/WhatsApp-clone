@@ -1,0 +1,124 @@
+@use '../../styles/tokens' as *;
+
+// A poll reads as a distinct Y2K "card" in the message stream: full width, a
+// thick cyan border, and a hard offset shadow so it pops off the chat.
+.poll {
+  align-self: stretch;
+  max-width: 100%;
+  background: $color-bg-elevated;
+  border: $border-width-base solid $color-secondary;
+  box-shadow: $shadow-chunky-cyan;
+  padding: $space-3;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  margin-bottom: $space-3;
+}
+
+.headIcon {
+  flex-shrink: 0;
+  color: $color-secondary;
+  filter: drop-shadow(0 0 4px $color-secondary-glow);
+}
+
+.question {
+  font-family: $font-display;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  line-height: $line-height-display;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+// Each option is a clickable row. The neon fill bar is an absolutely-positioned
+// layer behind the label so the percentage "fills up" the row.
+.option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+  width: 100%;
+  min-height: 34px;
+  padding: $space-2 $space-3;
+  background: $color-bg-base;
+  border: $border-width-thin solid $color-border-dim;
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  transition: $transition-base;
+
+  &:hover:not(.closed) {
+    border-color: $color-secondary;
+  }
+}
+
+.mine {
+  // Border color set inline to the option's neon hue.
+  border-width: $border-width-base;
+}
+
+.closed {
+  cursor: default;
+}
+
+// The fill bar — blocky, no blur, hard offset shadow in the option's hue.
+.fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  opacity: 0.28;
+  transition: width $transition-base;
+  pointer-events: none;
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+  font-family: $font-body;
+  font-size: $font-size-base;
+  color: $color-text-primary;
+  word-break: break-word;
+}
+
+.check {
+  color: $color-secondary;
+  font-weight: bold;
+}
+
+.stats {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.foot {
+  display: flex;
+  gap: $space-3;
+  margin-top: $space-3;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+}
+
+.closedTag {
+  color: $color-warning;
+}
+
+.hint {
+  color: $color-secondary;
+}

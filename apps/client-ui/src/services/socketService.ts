@@ -1,6 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { getToken } from "./apiClient";
-import { IMessage } from "../store/IStore";
+import { IMessage, IPoll } from "../store/IStore";
 
 // Real-time channel transport (Phase 3). One shared connection per session,
 // authenticated with the Flux JWT. The socket server uses rooms keyed by
@@ -98,4 +98,38 @@ export const onMessagePinned = (
 ): (() => void) => {
   socket?.on("messagePinned", handler);
   return () => socket?.off("messagePinned", handler);
+};
+
+// --- Polls over the socket (Phase 7) -----------------------------------------
+// createPoll/votePoll return true if emitted over a live socket, false when
+// disconnected so callers can fall back to REST. The server broadcasts `newPoll`
+// (to the creator too) and `pollUpdated` to the room.
+
+export const createPoll = (
+  channelId: string,
+  data: { question: string; options: string[]; allowMultiple?: boolean }
+): boolean => {
+  if (!socket?.connected) return false;
+  socket.emit("createPoll", { channelId, ...data });
+  return true;
+};
+
+export const votePoll = (
+  channelId: string,
+  pollId: string,
+  optionId: string
+): boolean => {
+  if (!socket?.connected) return false;
+  socket.emit("votePoll", { channelId, pollId, optionId });
+  return true;
+};
+
+export const onNewPoll = (handler: (poll: IPoll) => void): (() => void) => {
+  socket?.on("newPoll", handler);
+  return () => socket?.off("newPoll", handler);
+};
+
+export const onPollUpdated = (handler: (poll: IPoll) => void): (() => void) => {
+  socket?.on("pollUpdated", handler);
+  return () => socket?.off("pollUpdated", handler);
 };

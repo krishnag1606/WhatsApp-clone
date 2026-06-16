@@ -3,18 +3,21 @@ import { useParams } from "react-router-dom";
 import styles from "./channel-view.module.scss";
 import { useStore } from "../../store/store";
 import { messageService } from "../../services/MessageService";
+import { pollService } from "../../services/PollService";
 import {
   joinChannel,
   leaveChannel,
   onNewMessage,
   onMessageDeleted,
   onMessagePinned,
+  onNewPoll,
+  onPollUpdated,
   onConnect,
 } from "../../services/socketService";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import { Permissions, hasPermission } from "../../constants/permissions";
-import { PixelButton } from "../../ui";
+import { PixelButton, PixelIcon } from "../../ui";
 import { IChannel } from "../../store/IStore";
 import SlowmodeModal from "../modals/SlowmodeModal";
 
@@ -29,6 +32,10 @@ const ChannelView: React.FC = () => {
   const addMessage = useStore((s) => s.addMessage);
   const updateMessage = useStore((s) => s.updateMessage);
   const removeMessage = useStore((s) => s.removeMessage);
+  const polls = useStore((s) => s.polls);
+  const setPolls = useStore((s) => s.setPolls);
+  const addPoll = useStore((s) => s.addPoll);
+  const updatePoll = useStore((s) => s.updatePoll);
   const setActiveChannelId = useStore((s) => s.setActiveChannelId);
   const myPermissions = useStore((s) => s.myPermissions);
   // The live socket (opened by AppShell). We depend on it so this effect re-runs
@@ -39,6 +46,7 @@ const ChannelView: React.FC = () => {
   const [slowmodeOpen, setSlowmodeOpen] = React.useState(false);
 
   const channel = channels.find((c) => c._id === channelId);
+  const isAnnouncement = channel?.type === "announcement";
   const canManageChannels = hasPermission(
     myPermissions,
     Permissions.MANAGE_CHANNELS
@@ -54,13 +62,19 @@ const ChannelView: React.FC = () => {
     if (!channelId) return;
     setLoading(true);
     try {
-      setMessages(await messageService.list(channelId));
+      // Load history + polls together; both interleave in the list by time.
+      const [history, channelPolls] = await Promise.all([
+        messageService.list(channelId),
+        pollService.list(channelId).catch(() => []),
+      ]);
+      setMessages(history);
+      setPolls(channelPolls);
     } catch (error) {
       console.error("Failed to load messages", error);
     } finally {
       setLoading(false);
     }
-  }, [channelId, setMessages]);
+  }, [channelId, setMessages, setPolls]);
 
   React.useEffect(() => {
     setActiveChannelId(channelId ?? null);
@@ -83,25 +97,43 @@ const ChannelView: React.FC = () => {
     const offPinned = onMessagePinned((msg) => {
       if (msg.channelId === channelId) updateMessage(msg);
     });
+    const offNewPoll = onNewPoll((poll) => {
+      if (poll.channelId === channelId) addPoll(poll);
+    });
+    const offPollUpdated = onPollUpdated((poll) => {
+      if (poll.channelId === channelId) updatePoll(poll);
+    });
     // Re-join after any reconnect — room membership is per-connection.
     const offConnect = onConnect(() => joinChannel(channelId));
     return () => {
       offNew();
       offDeleted();
       offPinned();
+      offNewPoll();
+      offPollUpdated();
       offConnect();
       leaveChannel(channelId);
     };
-  }, [channelId, socket, addMessage, updateMessage, removeMessage]);
+  }, [
+    channelId,
+    socket,
+    addMessage,
+    updateMessage,
+    removeMessage,
+    addPoll,
+    updatePoll,
+  ]);
 
   if (!channelId) return null;
 
   return (
     <div className={styles.view}>
       <header className={styles.header}>
-        <span className={styles.hash}>
-          {channel?.type === "announcement" ? "📣" : "#"}
-        </span>
+        {isAnnouncement ? (
+          <PixelIcon name="speaker" size={18} className={styles.announceIcon} />
+        ) : (
+          <span className={styles.hash}>#</span>
+        )}
         <span className={styles.name}>{channel?.name ?? "channel"}</span>
         {channel && channel.slowmodeSeconds ? (
           <span className={styles.hash} title="Slowmode">
@@ -121,7 +153,13 @@ const ChannelView: React.FC = () => {
         )}
       </header>
 
-      <MessageList messages={messages} loading={loading} channelId={channelId} />
+      <MessageList
+        messages={messages}
+        polls={polls}
+        loading={loading}
+        channelId={channelId}
+        isAnnouncement={isAnnouncement}
+      />
       <MessageInput
         channelId={channelId}
         channelName={channel?.name}

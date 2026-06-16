@@ -54,6 +54,12 @@ import {
   unmuteMember,
   getAuditLog,
 } from "../controller/moderation-controller.js";
+// Phase 7 — polls.
+import {
+  createPoll,
+  getPolls,
+  votePoll,
+} from "../controller/poll-controller.js";
 
 const route = express.Router();
 
@@ -220,6 +226,28 @@ route.post(
   requireAuth,
   requireMembership,
   pinMessage
+);
+
+/* -------------------------------- Polls -------------------------------- */
+route.post(
+  "/api/channels/:channelId/polls",
+  requireAuth,
+  requireMembership,
+  requirePermission(Permissions.CREATE_POLLS),
+  createPoll
+);
+route.get(
+  "/api/channels/:channelId/polls",
+  requireAuth,
+  requireMembership,
+  getPolls
+);
+// Voting is open to any member; toggling + allowMultiple are enforced server-side.
+route.post(
+  "/api/channels/:channelId/polls/:pollId/vote",
+  requireAuth,
+  requireMembership,
+  votePoll
 );
 
 export default route;

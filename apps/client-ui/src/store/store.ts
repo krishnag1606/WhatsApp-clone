@@ -7,6 +7,7 @@ import {
   IMessage,
   IRole,
   IMember,
+  IPoll,
 } from "./IStore";
 import { getToken } from "../services/apiClient";
 
@@ -61,6 +62,22 @@ export const useStore = create<IStore>((set) => ({
       messages: state.messages.filter((m) => m._id !== messageId),
     })),
 
+  // Polls (Phase 7)
+  polls: [],
+  setPolls: (polls: IPoll[]) => set({ polls }),
+  addPoll: (poll: IPoll) =>
+    set((state) =>
+      // Dedup: the socket broadcasts newPoll to the creator too, and a REST
+      // create may also append, so guard against inserting twice.
+      state.polls.some((p) => p._id === poll._id)
+        ? {}
+        : { polls: [...state.polls, poll] }
+    ),
+  updatePoll: (poll: IPoll) =>
+    set((state) => ({
+      polls: state.polls.map((p) => (p._id === poll._id ? poll : p)),
+    })),
+
   // Socket (Phase 3)
   socket: null,
   setSocket: (socket: any) => set({ socket }),
@@ -77,6 +94,7 @@ export const useStore = create<IStore>((set) => ({
       members: [],
       myPermissions: 0,
       messages: [],
+      polls: [],
       // Drop the socket ref too so a new session never reuses the old
       // connection (AppShell disconnects it on unmount).
       socket: null,

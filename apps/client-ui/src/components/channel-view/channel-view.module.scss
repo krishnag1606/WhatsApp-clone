@@ -22,6 +22,13 @@
   color: $color-text-muted;
 }
 
+// Header speaker icon for announcement channels — neon yellow with a soft glow.
+.announceIcon {
+  flex-shrink: 0;
+  color: $color-accent;
+  filter: drop-shadow(0 0 4px $color-accent-glow);
+}
+
 .name {
   color: $color-primary;
 }
@@ -58,6 +65,24 @@
   align-self: flex-end;
   background: $color-bubble-sent;
   border-color: $color-primary;
+}
+
+// Announcement flair: a thick neon-yellow border, a faint yellow tint, and a
+// hard offset glow so broadcasts read as "important" at a glance. Spans the full
+// width regardless of author so announcements feel like posts, not chat bubbles.
+.announcement {
+  max-width: 100%;
+  align-self: stretch;
+  border: $border-width-base solid $color-accent;
+  background: rgba(255, 230, 0, 0.08);
+  box-shadow: $glow-accent;
+}
+
+// Tiny megaphone badge next to the timestamp inside announcement messages.
+.announceBadge {
+  display: inline-flex;
+  align-items: center;
+  color: $color-accent;
 }
 
 .meta {

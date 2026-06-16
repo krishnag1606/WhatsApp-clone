@@ -61,6 +61,27 @@ export interface IMessage {
   deletedAt?: string | null;
 }
 
+// Poll view returned by GET /api/channels/:id/polls and the socket newPoll /
+// pollUpdated events. Each option carries its full voter list so the client can
+// derive counts and whether the caller has voted.
+export interface IPollOption {
+  _id: string;
+  text: string;
+  voters: string[]; // User._id (Google sub)
+}
+
+export interface IPoll {
+  _id: string;
+  channelId: string;
+  authorId: string;
+  question: string;
+  options: IPollOption[];
+  allowMultiple: boolean;
+  expiresAt?: string | null;
+  createdAt: string;
+  type: "poll";
+}
+
 export interface IStore {
   // Session
   token: string | null;
@@ -97,6 +118,14 @@ export interface IStore {
   updateMessage: (message: IMessage) => void;
   // Remove a message from the active channel (e.g. deleted) — matched by _id.
   removeMessage: (messageId: string) => void;
+
+  // Polls of the active channel (Phase 7). Interleaved with messages in the
+  // list by createdAt; updated live via the pollUpdated socket event.
+  polls: IPoll[];
+  setPolls: (polls: IPoll[]) => void;
+  addPoll: (poll: IPoll) => void;
+  // Replace a poll in place (e.g. a vote changed counts) — matched by _id.
+  updatePoll: (poll: IPoll) => void;
 
   // Socket (wired for real-time in Phase 3)
   socket: any;
