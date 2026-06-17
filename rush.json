@@ -14,7 +14,6 @@
     "preRushx": [],
     "postRushx": []
   },
-  "variants": [],
   "projects": [
     {
       "packageName": "flux-client",
