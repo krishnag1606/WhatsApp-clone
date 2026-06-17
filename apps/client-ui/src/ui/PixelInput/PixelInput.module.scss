@@ -10,35 +10,33 @@
 .label {
   font-family: $font-display;
   font-size: 8px;
-  color: $color-text-secondary;
+  color: $color-accent;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  text-shadow: none;
 }
 
-// Inset / beveled look: heavy inner shadow on top-left edge
+// Classic naming-screen box: parchment field, espresso text, an espresso border
+// with a recessed inner bevel. Focus lights a soft gold frame (no glow/blur).
 .inputRow {
   display: flex;
   align-items: center;
-  background: #080010;
-  border: $border-width-base solid #000;
-  box-shadow:
-    inset 2px 2px 0 rgba(0, 0, 0, 0.9),
-    inset -2px -2px 0 rgba(255, 255, 255, 0.04);
+  background: $color-parchment;
+  border: $border-width-base solid $color-border;
+  border-radius: $border-radius-sm;
+  box-shadow: $bevel-recessed;
   padding: 0 $space-3;
   gap: $space-2;
   transition: border-color $transition-base, box-shadow $transition-base;
 
   &:focus-within {
-    border-color: $color-secondary;
-    box-shadow:
-      inset 2px 2px 0 rgba(0, 0, 0, 0.9),
-      inset -2px -2px 0 rgba(0, 245, 255, 0.08),
-      0 0 0 1px $color-secondary;
+    border-color: $color-accent;
+    box-shadow: $bevel-recessed, 0 0 0 2px $color-accent;
   }
 }
 
 .iconSlot {
-  color: $color-text-muted;
+  color: $color-text-dark-soft;
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -50,13 +48,13 @@
   background: transparent;
   border: none;
   outline: none;
-  color: $color-text-primary;
+  color: $color-text-dark;
   font-family: $font-body;
   font-size: $font-size-base;
   padding: $space-2 0;
   line-height: $line-height-body;
 
-  &::placeholder { color: $color-text-muted; }
+  &::placeholder { color: $color-text-dark-soft; opacity: 0.7; }
 
   // Remove browser search decoration
   &::-webkit-search-cancel-button,

@@ -1,40 +1,56 @@
 :root {
-  /* ── Color palette ─────────────────────────────────────────────────── */
-  --color-bg-base:         #0a0014;
-  --color-bg-surface:      #12002a;
-  --color-bg-elevated:     #1e0040;
+  /* ── Cozy 16-Bit RPG palette ───────────────────────────────────────── */
+  /* Backgrounds: parchment / wood / classic SNES dialog blue */
+  --color-parchment:       #f4ecd8;
+  --color-parchment-dim:   #e6d8b8;
+  --color-wood:            #3e2723;
+  --color-wood-light:      #5d4037;
+  --color-wood-dark:       #2a1813;
+  --color-dialog-blue:     #0000a8;
+  --color-dialog-blue-lt:  #2630c8;
 
-  --color-primary:         #ff006e;
-  --color-primary-glow:    rgba(255, 0, 110, 0.35);
-  --color-secondary:       #00f5ff;
-  --color-secondary-glow:  rgba(0, 245, 255, 0.35);
-  --color-lime:            #39ff14;
-  --color-yellow:          #ffe600;
-  --color-orange:          #ff9500;
-  --color-danger:          #ff3030;
+  --color-bg-base:         #3e2723;
+  --color-bg-surface:      #0000a8;
+  --color-bg-elevated:     #2630c8;
 
-  --color-text-primary:    #ffffff;
-  --color-text-secondary:  #c8b8ff;
-  --color-text-muted:      #6b5b9e;
+  /* Accents: crimson / forest green / soft gold (no glows) */
+  --color-primary:         #b71c1c;
+  --color-secondary:       #2e7d32;
+  --color-lime:            #2e7d32;
+  --color-yellow:          #ffd700;
+  --color-gold:            #ffd700;
+  --color-orange:          #e09f3e;
+  --color-danger:          #8b0000;
+  --color-success:         #2e7d32;
+  --color-accent:          #ffd700;
 
-  --color-bubble-sent:     #3d0070;
-  --color-bubble-received: #1e0040;
+  /* Text */
+  --color-text-primary:    #fff8e7;   /* warm white on dark */
+  --color-text-secondary:  #e8dcc0;   /* cream */
+  --color-text-muted:      #b39d7d;   /* muted tan */
+  --color-text-dark:       #1e0b04;   /* espresso on parchment */
+
+  --color-bubble-sent:     #2e7d32;
+  --color-bubble-received: #2630c8;
 
   /* ── Typography ────────────────────────────────────────────────────── */
   --font-display:   'Press Start 2P', monospace;
   --font-body:      'VT323', monospace;
 
-  /* ── Borders ───────────────────────────────────────────────────────── */
-  --border-thin:    2px solid var(--color-primary);
-  --border-base:    3px solid var(--color-primary);
-  --border-thick:   4px solid var(--color-primary);
-  --border-dim:     2px solid rgba(255, 0, 110, 0.35);
+  /* ── Borders (espresso outline + cream inner frame) ─────────────────── */
+  --color-border:          #1e0b04;
+  --color-border-light:    #fff8e7;
+  --border-thin:    2px solid #1e0b04;
+  --border-base:    3px solid #1e0b04;
+  --border-thick:   4px solid #1e0b04;
+  --border-dim:     2px solid rgba(30, 11, 4, 0.4);
 
-  /* ── Shadows ───────────────────────────────────────────────────────── */
-  --shadow-chunky:       4px 4px 0 #000;
-  --shadow-chunky-pink:  4px 4px 0 var(--color-primary);
-  --shadow-chunky-cyan:  4px 4px 0 var(--color-secondary);
-  --shadow-window:       6px 6px 0 #000;
+  /* ── RPG frames & shadows (no blur) ─────────────────────────────────── */
+  --frame-rpg:           inset 0 0 0 3px #fff8e7, 0 0 0 3px #1e0b04;
+  --shadow-chunky:       4px 4px 0 rgba(0, 0, 0, 0.45);
+  --shadow-chunky-pink:  4px 4px 0 rgba(0, 0, 0, 0.45);
+  --shadow-chunky-cyan:  4px 4px 0 rgba(0, 0, 0, 0.45);
+  --shadow-window:       6px 6px 0 rgba(0, 0, 0, 0.5);
 
   /* ── Spacing ───────────────────────────────────────────────────────── */
   --space-1: 4px;   --space-2: 8px;   --space-3: 12px;
@@ -44,8 +60,8 @@
 body {
   margin: 0;
   font-family: 'VT323', monospace;
-  background-color: #0a0014;
-  color: #ffffff;
+  background-color: #3e2723;
+  color: #fff8e7;
   -webkit-font-smoothing: none;  /* keep pixels crisp */
   -moz-osx-font-smoothing: unset;
 }
@@ -55,16 +71,17 @@ code {
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #12002a;
+  background: #2a1813;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #ff006e;
+  background-color: #5d4037;
+  border: 2px solid #2a1813;
   border-radius: 0;
 }
 

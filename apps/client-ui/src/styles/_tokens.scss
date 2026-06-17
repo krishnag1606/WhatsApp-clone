@@ -1,45 +1,64 @@
-// Flux Y2K Design Tokens
+// Flux — Cozy 16-Bit RPG Design Tokens (SNES / Stardew Valley)
+//
+// Warm, nostalgic game-menu feel: parchment + wood + classic SNES dialog blue,
+// soft gold / forest green / crimson accents, espresso text. Borders are "RPG
+// double borders" (light inner frame + dark outer outline, no blur). All neon
+// glows have been removed — drop shadows are hard, soft, and brown, never lit.
 
-// ── Colors ───────────────────────────────────────────────────────────────────
-$color-bg-base:        #0a0014;   // deep space purple-black
-$color-bg-surface:     #12002a;   // slightly lighter surface
-$color-bg-elevated:    #1e0040;   // card / panel background
+// ── Raw palette ────────────────────────────────────────────────────────────────
+$color-parchment:      #f4ecd8;   // parchment / tan (quest log, naming boxes)
+$color-parchment-dim:  #e6d8b8;   // recessed parchment / slot interior
+$color-wood:           #3e2723;   // deep wood brown (app frame)
+$color-wood-light:     #5d4037;   // lighter wood (panels, buttons)
+$color-wood-dark:      #2a1813;   // darkest wood (rail, gutters)
+$color-dialog-blue:    #0000a8;   // classic SNES dialog blue (chat)
+$color-dialog-blue-lt: #2630c8;   // lighter dialog blue (cards, bubbles)
 
-$color-primary:        #ff006e;   // hot pink
-$color-primary-glow:   rgba(255, 0, 110, 0.35);
+// ── Background roles ───────────────────────────────────────────────────────────
+$color-bg-base:        $color-wood;            // outer app frame
+$color-bg-surface:     $color-dialog-blue;     // chat / main dialog pane
+$color-bg-elevated:    $color-dialog-blue-lt;  // cards / message bubbles on blue
 
-$color-secondary:      #00f5ff;   // electric cyan
-$color-secondary-glow: rgba(0, 245, 255, 0.35);
+// ── Accents (glows kept as no-op rgba so legacy refs compile, but unused) ───────
+$color-primary:        #b71c1c;   // crimson
+$color-primary-glow:   rgba(183, 28, 28, 0);
+$color-secondary:      #2e7d32;   // forest green
+$color-secondary-glow: rgba(46, 125, 50, 0);
+$color-accent:         #ffd700;   // soft gold
+$color-accent-glow:    rgba(255, 215, 0, 0);
 
-$color-accent:         #ffe600;   // neon yellow
-$color-accent-glow:    rgba(255, 230, 0, 0.35);
+$color-success:        #2e7d32;   // forest green
+$color-warning:        #e09f3e;   // warm amber
+$color-danger:         #8b0000;   // deep blood red
 
-$color-success:        #39ff14;   // neon green
-$color-warning:        #ff9500;   // retro orange
+// ── Text ───────────────────────────────────────────────────────────────────────
+$color-text-primary:   #fff8e7;   // warm white (on wood / dialog blue)
+$color-text-secondary: #e8dcc0;   // cream
+$color-text-muted:     #b39d7d;   // muted tan
+$color-text-dark:      #1e0b04;   // espresso (on parchment)
+$color-text-dark-soft: #5b4636;   // soft brown (on parchment)
 
-$color-text-primary:   #ffffff;
-$color-text-secondary: #c8b8ff;   // soft lavender
-$color-text-muted:     #6b5b9e;
-
-$color-border:         $color-primary;
-$color-border-dim:     rgba(255, 0, 110, 0.4);
+// ── Borders ──────────────────────────────────────────────────────────────────
+$color-border:         #1e0b04;   // espresso — outer outline
+$color-border-light:   #fff8e7;   // cream — inner frame
+$color-border-dim:     rgba(30, 11, 4, 0.4);
 
 // Sent / received bubble colors
-$color-bubble-sent:    #3d0070;
-$color-bubble-received: #1e0040;
+$color-bubble-sent:     #2e7d32;  // forest green (own messages)
+$color-bubble-received: #2630c8;  // dialog-blue panel (others)
 
 // ── Typography ────────────────────────────────────────────────────────────────
 $font-display:  'Press Start 2P', monospace;   // headings, logo, labels
 $font-body:     'VT323', monospace;             // body text, messages
 
 $font-size-xs:   10px;
-$font-size-sm:   14px;
-$font-size-base: 18px;
-$font-size-lg:   24px;
-$font-size-xl:   32px;
+$font-size-sm:   15px;
+$font-size-base: 20px;   // bumped for readability on cozy backgrounds
+$font-size-lg:   26px;
+$font-size-xl:   34px;
 $font-size-2xl:  48px;
 
-$line-height-body:    1.4;
+$line-height-body:    1.45;
 $line-height-display: 1.6;   // Press Start 2P needs extra breathing room
 
 // ── Borders ───────────────────────────────────────────────────────────────────
@@ -54,17 +73,34 @@ $border-thick:  $border-width-thick  solid $color-border;
 $border-chunky: $border-width-chunky solid $color-border;
 
 $border-radius-none: 0px;
-$border-radius-sm:   4px;
-$border-radius-base: 6px;
+$border-radius-sm:   2px;
+$border-radius-base: 4px;
 
-// ── Shadows / Glows ───────────────────────────────────────────────────────────
-$glow-primary:   0 0 8px $color-primary,  0 0 20px $color-primary-glow;
-$glow-secondary: 0 0 8px $color-secondary, 0 0 20px $color-secondary-glow;
-$glow-accent:    0 0 8px $color-accent,   0 0 20px $color-accent-glow;
+// ── RPG frames & shadows (no blur — classic 16-bit dialog look) ─────────────────
+// Double border: a light inner frame inset + a dark outer outline. Apply to a
+// solid-colored box to get the classic SNES dialog frame.
+$frame-inner-light: inset 0 0 0 3px $color-border-light;
+$frame-outer-dark:  0 0 0 3px $color-border;
+$shadow-rpg:        #{$frame-inner-light}, #{$frame-outer-dark};
 
-// Hard pixel drop-shadow (Y2K chunky button effect)
-$shadow-chunky: 4px 4px 0px $color-primary;
-$shadow-chunky-cyan: 4px 4px 0px $color-secondary;
+// Soft, hard-edged drop shadow (pressed-pixel depth — brown, never lit).
+$shadow-chunky:      4px 4px 0 rgba(0, 0, 0, 0.45);
+$shadow-chunky-cyan: 4px 4px 0 rgba(0, 0, 0, 0.45);
+
+// Recessed inventory-slot bevel (dark top-left, light bottom-right inset).
+$bevel-recessed:
+  inset 2px 2px 0 rgba(0, 0, 0, 0.45),
+  inset -2px -2px 0 rgba(255, 255, 255, 0.18);
+// Raised button bevel (light top-left, dark bottom-right inset).
+$bevel-raised:
+  inset 2px 2px 0 rgba(255, 255, 255, 0.28),
+  inset -2px -2px 0 rgba(0, 0, 0, 0.32);
+
+// Legacy "glow" tokens repurposed as soft gold highlight rings (no blur) so any
+// remaining references read as a cozy focus frame instead of neon.
+$glow-primary:   0 0 0 2px $color-accent;
+$glow-secondary: 0 0 0 2px $color-accent;
+$glow-accent:    0 0 0 2px $color-accent;
 
 // ── Spacing ───────────────────────────────────────────────────────────────────
 $space-1:  4px;
@@ -77,8 +113,8 @@ $space-7:  48px;
 $space-8:  64px;
 
 // ── Scrollbar ────────────────────────────────────────────────────────────────
-$scrollbar-width:  6px;
-$scrollbar-color:  $color-primary;
+$scrollbar-width:  8px;
+$scrollbar-color:  $color-wood-light;
 
 // ── Transitions ───────────────────────────────────────────────────────────────
 $transition-fast: 80ms step-end;   // instant pixel-y feel

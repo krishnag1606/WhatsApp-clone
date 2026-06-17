@@ -1,49 +1,56 @@
 @use '../../styles/tokens' as *;
 
+// The rail reads as a vertical wooden inventory shelf.
 .rail {
-  width: 72px;
+  width: 76px;
   flex-shrink: 0;
-  background: $color-bg-base;
+  background: $color-wood-dark;
   border-right: $border-base;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: $space-3 0;
-  gap: $space-3;
+  padding: $space-4 0;
+  gap: $space-4;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: $space-3;
+  gap: $space-4;
   overflow-y: auto;
   align-items: center;
 }
 
+// Each community is an "inventory slot": a square, recessed wooden box.
 .tile {
-  width: 48px;
-  height: 48px;
+  width: 50px;
+  height: 50px;
   cursor: pointer;
   font-family: $font-display;
   font-size: $font-size-xs;
-  color: $color-text-primary;
-  background: $color-bg-elevated;
-  border: $border-thin;
+  color: $color-text-secondary;
+  background: $color-parchment-dim;
+  border: $border-width-base solid $color-border;
+  border-radius: $border-radius-sm;
+  box-shadow: $bevel-recessed;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: $color-text-dark;
   transition: $transition-base;
 
   &:hover {
-    box-shadow: $glow-primary;
+    box-shadow: $bevel-recessed, 0 0 0 2px $color-accent;
   }
 }
 
+// Selected slot: gold frame, as if highlighted by the menu cursor.
 .active {
-  border-color: $color-secondary;
-  box-shadow: $glow-secondary;
-  color: $color-secondary;
+  border-color: $color-accent;
+  background: $color-parchment;
+  box-shadow: $bevel-recessed, 0 0 0 2px $color-accent;
+  color: $color-primary;
 }
 
 .actions {

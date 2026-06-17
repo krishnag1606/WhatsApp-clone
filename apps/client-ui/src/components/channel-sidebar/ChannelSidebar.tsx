@@ -141,26 +141,6 @@ const ChannelSidebar: React.FC = () => {
         </div>
       )}
 
-      {communityId && showManageBar && (
-        <div className={styles.manageBar}>
-          {canManageRoles && (
-            <PixelButton variant="ghost" size="sm" onClick={() => setRolesOpen(true)}>
-              Roles
-            </PixelButton>
-          )}
-          {(canManageRoles || canViewAudit) && (
-            <PixelButton variant="ghost" size="sm" onClick={() => setMembersOpen(true)}>
-              Members
-            </PixelButton>
-          )}
-          {canViewAudit && (
-            <PixelButton variant="ghost" size="sm" onClick={() => setAuditOpen(true)}>
-              Audit
-            </PixelButton>
-          )}
-        </div>
-      )}
-
       <div className={styles.channels}>
         {communityId &&
           channels.map((ch: IChannel) => (
@@ -196,11 +176,48 @@ const ChannelSidebar: React.FC = () => {
         )}
       </div>
 
+      {/* Management menu — a row of wooden "tool slots" (icon + caption), like a
+          JRPG party/quest/log menu, instead of cramped gold pills. */}
+      {communityId && showManageBar && (
+        <div className={styles.toolBar}>
+          {canManageRoles && (
+            <button
+              className={styles.tool}
+              onClick={() => setRolesOpen(true)}
+              title="Manage roles"
+            >
+              <PixelIcon name="lock" size={18} className={styles.toolIcon} />
+              <span className={styles.toolLabel}>Roles</span>
+            </button>
+          )}
+          {(canManageRoles || canViewAudit) && (
+            <button
+              className={styles.tool}
+              onClick={() => setMembersOpen(true)}
+              title="View members"
+            >
+              <PixelIcon name="users" size={18} className={styles.toolIcon} />
+              <span className={styles.toolLabel}>Party</span>
+            </button>
+          )}
+          {canViewAudit && (
+            <button
+              className={styles.tool}
+              onClick={() => setAuditOpen(true)}
+              title="View audit log"
+            >
+              <PixelIcon name="menu" size={18} className={styles.toolIcon} />
+              <span className={styles.toolLabel}>Log</span>
+            </button>
+          )}
+        </div>
+      )}
+
       <div className={styles.footer}>
         <span className={styles.userName} title={currentUser?.email}>
           {currentUser?.name}
         </span>
-        <PixelButton variant="ghost" size="sm" onClick={logout} title="Log out">
+        <PixelButton variant="danger" size="sm" onClick={logout} title="Log out">
           ⏻
         </PixelButton>
       </div>

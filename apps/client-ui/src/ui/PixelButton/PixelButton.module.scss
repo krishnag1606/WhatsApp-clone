@@ -1,10 +1,13 @@
 @use '../../styles/tokens' as *;
 
+// Wooden menu / inventory-slot buttons: thick espresso border, a raised bevel,
+// a soft hard-edged drop shadow, and a subtle press-down (translate 2px).
 .button {
   font-family: $font-display;
   font-size: $font-size-xs;
   line-height: $line-height-display;
-  border: $border-width-base solid #000;
+  border: $border-width-base solid $color-border;
+  border-radius: $border-radius-sm;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -14,18 +17,21 @@
   user-select: none;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  text-shadow: none;
   transition:
     transform $transition-fast,
-    box-shadow $transition-fast;
+    box-shadow $transition-fast,
+    filter $transition-base;
 
   &:active:not(:disabled) {
-    transform: translate(4px, 4px);
-    box-shadow: none !important;
+    transform: translateY(2px);
+    box-shadow: $bevel-raised !important;
   }
 
   &:disabled {
-    opacity: 0.45;
+    opacity: 0.5;
     cursor: not-allowed;
+    filter: grayscale(0.4);
   }
 }
 
@@ -44,61 +50,66 @@
   font-size: 12px;
 }
 
-// ── Variants ──────────────────────────────────────────────────────────────────
-.primary {
-  background: $color-primary;
-  color: #fff;
-  box-shadow: 4px 4px 0 #000;
+// ── Variants — each is a colored wooden slot with a raised bevel ────────────────
+%slot {
+  box-shadow: $bevel-raised, $shadow-chunky;
+}
 
-  &:hover:not(:disabled) { background: #ff338a; }
+.primary {
+  @extend %slot;
+  background: $color-primary;
+  color: #fff8e7;
+
+  &:hover:not(:disabled) { filter: brightness(1.12); }
 }
 
 .cyan {
-  background: $color-secondary;
-  color: #000;
-  box-shadow: 4px 4px 0 #000;
+  @extend %slot;
+  background: $color-dialog-blue-lt;
+  color: #fff8e7;
 
-  &:hover:not(:disabled) { background: #33f8ff; }
+  &:hover:not(:disabled) { filter: brightness(1.12); }
 }
 
 .lime {
-  background: $color-success;
-  color: #000;
-  box-shadow: 4px 4px 0 #000;
+  @extend %slot;
+  background: $color-secondary;
+  color: #fff8e7;
 
-  &:hover:not(:disabled) { background: #5cff3a; }
+  &:hover:not(:disabled) { filter: brightness(1.12); }
 }
 
 .yellow {
+  @extend %slot;
   background: $color-accent;
-  color: #000;
-  box-shadow: 4px 4px 0 #000;
+  color: $color-text-dark;
 
-  &:hover:not(:disabled) { background: #fff033; }
+  &:hover:not(:disabled) { filter: brightness(1.08); }
 }
 
 .ghost {
   background: transparent;
-  color: $color-primary;
-  border-color: $color-primary;
-  box-shadow: 4px 4px 0 $color-primary;
+  color: $color-accent;
+  border-color: $color-accent;
+  box-shadow: $shadow-chunky;
 
-  &:hover:not(:disabled) { background: rgba(255, 0, 110, 0.1); }
+  &:hover:not(:disabled) { background: rgba(255, 215, 0, 0.12); }
 }
 
 .danger {
-  background: #ff3030;
-  color: #fff;
-  box-shadow: 4px 4px 0 #000;
+  @extend %slot;
+  background: $color-danger;
+  color: #fff8e7;
 
-  &:hover:not(:disabled) { background: #ff5555; }
+  &:hover:not(:disabled) { filter: brightness(1.15); }
 }
 
-// Icon-only: square, no text, transparent until hover
+// Icon-only: square slot, no text, transparent until hover
 .icon {
   background: transparent;
   color: $color-text-secondary;
   border: 2px solid transparent;
+  border-radius: $border-radius-sm;
   box-shadow: none;
   width: 36px;
   height: 36px;
@@ -107,12 +118,12 @@
   letter-spacing: 0;
 
   &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.07);
+    background: rgba(255, 248, 231, 0.1);
     border-color: $color-border-dim;
   }
 
   &:active:not(:disabled) {
-    transform: scale(0.86);
+    transform: translateY(2px);
     box-shadow: none !important;
   }
 }
