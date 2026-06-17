@@ -1,68 +1,313 @@
 @use '../../styles/tokens' as *;
 
-// A cozy title screen: warm wood backdrop with a faint dot-grid, no scanlines.
-.container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+// ════════════════════════════════════════════════════════════════════════════
+// Flux landing — a JRPG title / "pause menu" screen.
+// Strictly unscrollable: exactly one viewport, overflow hidden. Everything is
+// framed with the Cozy 16-Bit RPG helpers (double borders, bevels, hard brown
+// drop shadows) — no neon, no glow, no scanlines.
+// ════════════════════════════════════════════════════════════════════════════
+
+.screen {
   height: 100vh;
   width: 100%;
-  background-color: $color-bg-base;
-  background-image: radial-gradient(
-    rgba(255, 248, 231, 0.05) 1px,
-    transparent 1px
-  );
-  background-size: 8px 8px;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-items: center;
+  gap: clamp($space-3, 3vh, $space-6);
+  padding: clamp($space-3, 3vh, $space-6) clamp($space-4, 4vw, $space-8);
+
+  // Deep wood table-top with a faint warm dot-grid (no scanlines).
+  background-color: $color-wood-dark;
+  background-image:
+    radial-gradient(rgba(255, 248, 231, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, $color-wood 0%, $color-wood-dark 100%);
+  background-size: 8px 8px, 100% 100%;
 }
 
-// Content inside the PixelCard body
-.inner {
+// ── Hero banner: the wooden title plaque stacked over a parchment subtitle ─────
+.banner {
+  justify-self: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $space-4;
-  min-width: 320px;
-  padding: $space-2;
+  gap: clamp($space-3, 2vh, $space-5);
+  max-width: 100%;
 }
 
-// Pixel-art wordmark: four letters in warm RPG colours (no glow/text-shadow).
-.logoMark {
+// A raised wooden sign. Double border = espresso outline + a cream inner frame
+// (via $frame-inner-light), then a hard, unblurred brown drop ($shadow-chunky).
+.plaque {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  // Generous breathing room so the lettering never crowds the frame.
+  padding: clamp($space-4, 3.4vh, $space-6) clamp($space-6, 6vw, $space-8);
+
+  background: linear-gradient(180deg, $color-wood-light 0%, $color-wood 100%);
+  border: $border-width-thick solid $color-border;
+  border-radius: $border-radius-sm;
+  box-shadow: $frame-inner-light, $shadow-chunky;
+}
+
+// Title stacks into two harmonious lines: a large "FLUX" over a smaller,
+// wider-tracked "// COMMUNITIES" that balances rather than competes with it.
+.plaqueTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp($space-2, 1.4vh, $space-3);
+  margin: 0;
+  font-family: $font-display;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.titleTop {
+  display: flex;
+  align-items: center;
+  gap: clamp($space-3, 2.4vw, $space-5);
+}
+
+.brand {
+  font-size: clamp(28px, 6vh, 52px);
+  letter-spacing: 3px;
+  color: $color-accent;
+}
+
+// Crimson corner stars, sized off the brand so they read as ornaments.
+.star {
+  font-size: clamp(14px, 2.6vh, 22px);
+  color: $color-primary;
+  flex-shrink: 0;
+}
+
+.titleBottom {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  font-size: clamp(11px, 1.9vh, 16px);
+  letter-spacing: 0.22em;
+}
+
+.slash { color: $color-primary; }
+.sub   { color: $color-text-secondary; }
+
+// Subtitle grounded as a parchment ribbon: big VT323, espresso text, its own
+// framed box with a chunky drop so it anchors the banner instead of floating.
+.tagline {
+  margin: 0;
+  max-width: 92vw;
+  padding: clamp($space-2, 1.3vh, $space-3) clamp($space-4, 3.5vw, $space-6);
+  font-family: $font-body;
+  font-size: clamp($font-size-lg, 3.4vh, 32px);
+  line-height: 1.1;
+  color: $color-text-dark;
+  text-align: center;
+
+  background: $color-parchment;
+  border: $border-width-base solid $color-border;
+  border-radius: $border-radius-sm;
+  box-shadow: $shadow-chunky;
+}
+
+// ── The menu stage: stat panels flanking the central save gate ────────────────
+.stage {
+  min-height: 0; // allow the row to shrink so the screen never scrolls
+  width: 100%;
+  max-width: 1100px;
+  justify-self: center;
+  display: grid;
+  grid-template-columns: 1fr minmax(280px, 360px) 1fr;
+  align-items: center;
+  gap: clamp($space-3, 2.5vw, $space-7);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: clamp($space-2, 1.6vh, $space-4);
+  min-width: 0;
+}
+
+// ── Feature "inventory slots" — same dialog-box framing as PixelCard, compact ──
+.statSlot {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding: clamp($space-2, 1.4vh, $space-3) $space-3;
+
+  background: $color-bg-elevated; // dialog blue, like a PixelCard panel
+  color: $color-text-primary;
+  border: $border-width-base solid $color-border-light;
+  border-radius: $border-radius-sm;
+  box-shadow: $frame-outer-dark, $shadow-chunky;
+  transition: transform $transition-base;
+
+  &:hover {
+    transform: translate(-2px, -2px);
+  }
+}
+
+// The icon sits in a recessed inventory slot, tinted by the stat's tone.
+.statIcon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: $border-width-thin solid $color-border;
+  border-radius: $border-radius-sm;
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow: $bevel-recessed;
+  color: $color-accent;
+}
+
+.statText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.statValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: $space-2;
+}
+
+.statValue {
+  font-family: $font-display;
+  font-size: clamp(11px, 1.8vh, 14px);
+  color: $color-accent;
+  line-height: 1;
+}
+
+.statLabel {
+  font-family: $font-display;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: $color-text-secondary;
+  line-height: 1;
+}
+
+.statCaption {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Per-tone accent for the icon slot (recolours the leading icon only).
+.crimson .statIcon { color: $color-primary; }
+.blue    .statIcon { color: $color-text-primary; }
+.gold    .statIcon { color: $color-accent; }
+.green   .statIcon { color: $color-success; }
+
+// ── The central "Select Save File" gate (a prominent PixelCard) ───────────────
+.gate {
+  align-self: center;
+  justify-self: center;
+  width: 100%;
+}
+
+.gateInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp($space-3, 2vh, $space-5);
+  text-align: center;
+}
+
+// Wordmark crest — four letters in warm RPG colours (no glow / text-shadow).
+.crest {
   display: flex;
   gap: 2px;
   font-family: $font-display;
-  font-size: 32px;
+  font-size: clamp(22px, 3.4vh, 30px);
   line-height: 1;
-  letter-spacing: 4px;
-  margin-bottom: $space-2;
+  letter-spacing: 3px;
 }
 
-.logoF { color: $color-primary;   text-shadow: none; }
-.logoL { color: $color-secondary; text-shadow: none; }
-.logoU { color: $color-accent;    text-shadow: none; }
-.logoX { color: $color-warning;   text-shadow: none; }
+.crestF { color: $color-primary; }
+.crestL { color: $color-success; }
+.crestU { color: $color-accent; }
+.crestX { color: $color-warning; }
 
-.title {
-  font-family: $font-display;
-  font-size: 12px;
-  color: $color-text-primary;
-  text-align: center;
+.gatePrompt {
   margin: 0;
-  line-height: $line-height-display;
-}
-
-.subtitle {
   font-family: $font-body;
   font-size: $font-size-base;
-  color: $color-text-secondary;
-  text-align: center;
-  margin: 0;
+  color: $color-text-primary;
   line-height: $line-height-body;
-  max-width: 300px;
+
+  strong {
+    color: $color-accent;
+    font-weight: normal;
+  }
 }
 
-.divider {
+// The save slot that holds the Google button, framed like a recessed menu row.
+.saveSlot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-3;
   width: 100%;
-  border: none;
-  border-top: $border-width-thin solid $color-border-dim;
-  margin: $space-1 0;
+  padding: $space-4 $space-3;
+
+  background: $color-bg-elevated;
+  border: $border-width-thin solid $color-border;
+  border-radius: $border-radius-sm;
+  box-shadow: $bevel-recessed;
+}
+
+.saveSlotLabel {
+  font-family: $font-display;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: $color-accent;
+}
+
+.gateHint {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  margin: 0;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+}
+
+// ── Footer — a JRPG control legend ────────────────────────────────────────────
+.footer {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: clamp($space-3, 3vw, $space-6);
+  font-family: $font-display;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: $color-text-muted;
+}
+
+.version {
+  color: $color-text-secondary;
+}
+
+// On short / narrow viewports collapse the flanking panels so the gate stays
+// usable while the screen remains exactly one viewport tall (no scroll).
+@media (max-width: 860px), (max-height: 620px) {
+  .stage {
+    grid-template-columns: 1fr;
+    gap: $space-3;
+  }
+
+  .panel {
+    display: none;
+  }
 }
