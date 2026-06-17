@@ -10,6 +10,14 @@ dotenv.config();
 
 const app = express();
 
+// Behind a reverse proxy/CDN (Phase 9 deploy), set TRUST_PROXY to the number of
+// proxy hops so express-rate-limit reads the real client IP from
+// X-Forwarded-For. Left off in local dev (direct connections) to avoid the
+// permissive `trust proxy = true` that lets clients spoof their IP / bucket.
+if (process.env.TRUST_PROXY) {
+  app.set("trust proxy", Number(process.env.TRUST_PROXY) || 1);
+}
+
 // TODO: Update CORS configuration for production
 // Add your frontend domain to the origin array
 const corsOptions = {
