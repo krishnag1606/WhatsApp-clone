@@ -14,6 +14,11 @@ import {
 import { requireAuth } from "../middleware/auth.js";
 import { requireMembership } from "../middleware/membership.js";
 import { requirePermission, requireAnyPermission } from "../middleware/permission.js";
+import {
+  authLimiter,
+  writeLimiter,
+  mutationLimiter,
+} from "../middleware/rateLimit.js";
 import { Permissions } from "../constants/permissions.js";
 import { googleAuth, getMe } from "../controller/auth-controller.js";
 import {
@@ -71,13 +76,14 @@ route.post("/conversation/get", getConversation);
 route.post("/conversation/all", getConversations);
 
 /* -------------------------------- Auth --------------------------------- */
-route.post("/api/auth/google", googleAuth);
-route.get("/api/auth/me", requireAuth, getMe);
+// Strict limit: login/token exchange is the brute-force + spam-account surface.
+route.post("/api/auth/google", authLimiter, googleAuth);
+route.get("/api/auth/me", authLimiter, requireAuth, getMe);
 
 /* ----------------------------- Communities ----------------------------- */
-route.post("/api/communities", requireAuth, createCommunity);
+route.post("/api/communities", requireAuth, mutationLimiter, createCommunity);
 route.get("/api/communities", requireAuth, getMyCommunities);
-route.post("/api/communities/join", requireAuth, joinCommunity);
+route.post("/api/communities/join", requireAuth, mutationLimiter, joinCommunity);
 route.get("/api/communities/:communityId", requireAuth, requireMembership, getCommunity);
 
 /* ----------------------- Roles & members (Phase 4) --------------------- */
@@ -184,6 +190,7 @@ route.delete(
 route.post(
   "/api/communities/:communityId/channels",
   requireAuth,
+  mutationLimiter,
   requireMembership,
   requirePermission(Permissions.MANAGE_CHANNELS),
   createChannel
@@ -206,6 +213,7 @@ route.put(
 route.post(
   "/api/channels/:channelId/messages",
   requireAuth,
+  writeLimiter,
   requireMembership,
   addMessage
 );
@@ -232,6 +240,7 @@ route.post(
 route.post(
   "/api/channels/:channelId/polls",
   requireAuth,
+  writeLimiter,
   requireMembership,
   requirePermission(Permissions.CREATE_POLLS),
   createPoll
@@ -246,6 +255,7 @@ route.get(
 route.post(
   "/api/channels/:channelId/polls/:pollId/vote",
   requireAuth,
+  writeLimiter,
   requireMembership,
   votePoll
 );

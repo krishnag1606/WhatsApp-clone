@@ -1,4 +1,3 @@
-import { z } from "zod";
 import Message from "../model/Message.js";
 import Community from "../model/Community.js";
 import { encrypt } from "../util/crypto.js";
@@ -7,11 +6,7 @@ import { computePermissions, sendPermissionFor } from "../util/permissions.js";
 import { hasPermission } from "../constants/permissions.js";
 import { sendCooldownError } from "../util/sendGuards.js";
 import { deleteMessageAs, togglePinAs } from "../util/messageMod.js";
-
-const createSchema = z.object({
-  text: z.string().min(1).max(4000),
-  type: z.string().optional(),
-});
+import { messageBodySchema } from "../util/validation.js";
 
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 100;
@@ -22,7 +17,7 @@ const MAX_LIMIT = 100;
 // enforcement is layered on in Phase 5.
 export const addMessage = async (request, response) => {
   try {
-    const parsed = createSchema.safeParse(request.body);
+    const parsed = messageBodySchema.safeParse(request.body);
     if (!parsed.success) {
       return response.status(400).json({ error: "Message `text` is required" });
     }

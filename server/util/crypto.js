@@ -9,6 +9,7 @@ dotenv.config();
 
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 12; // 96-bit nonce, recommended for GCM
+const TAG_LENGTH = 16; // 128-bit GCM authentication tag
 const KEY_LENGTH = 32; // AES-256
 
 // Accept the key as 64-char hex or 44-char base64; must decode to 32 bytes.
@@ -57,18 +58,38 @@ export const encrypt = (plaintext) => {
   };
 };
 
-// decrypt({ ciphertext, iv, tag }) -> plaintext. Throws if the tag fails
-// (tampered/corrupt data), which callers should treat as an integrity error.
-export const decrypt = ({ ciphertext, iv, tag }) => {
-  const decipher = crypto.createDecipheriv(
-    ALGORITHM,
-    getKey(),
-    Buffer.from(iv, "base64")
-  );
-  decipher.setAuthTag(Buffer.from(tag, "base64"));
-  const plaintext = Buffer.concat([
-    decipher.update(Buffer.from(ciphertext, "base64")),
-    decipher.final(),
-  ]);
+// decrypt({ ciphertext, iv, tag }) -> plaintext. Throws if the envelope is
+// malformed or if the auth tag fails (tampered/corrupt data); callers should
+// treat any throw as an integrity error. The shape/length checks reject
+// truncated or non-GCM input before it reaches OpenSSL so failures are clear.
+export const decrypt = (payload) => {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("decrypt: missing encryption envelope");
+  }
+  const { ciphertext, iv, tag } = payload;
+  if (
+    typeof ciphertext !== "string" ||
+    typeof iv !== "string" ||
+    typeof tag !== "string"
+  ) {
+    throw new Error("decrypt: ciphertext, iv and tag must all be strings");
+  }
+
+  const ivBuf = Buffer.from(iv, "base64");
+  const tagBuf = Buffer.from(tag, "base64");
+  const dataBuf = Buffer.from(ciphertext, "base64");
+  if (ivBuf.length !== IV_LENGTH) {
+    throw new Error(`decrypt: iv must be ${IV_LENGTH} bytes`);
+  }
+  if (tagBuf.length !== TAG_LENGTH) {
+    throw new Error(`decrypt: auth tag must be ${TAG_LENGTH} bytes`);
+  }
+  if (dataBuf.length === 0) {
+    throw new Error("decrypt: ciphertext is empty");
+  }
+
+  const decipher = crypto.createDecipheriv(ALGORITHM, getKey(), ivBuf);
+  decipher.setAuthTag(tagBuf);
+  const plaintext = Buffer.concat([decipher.update(dataBuf), decipher.final()]);
   return plaintext.toString("utf8");
 };

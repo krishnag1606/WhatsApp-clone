@@ -24,14 +24,25 @@ import { deleteMessageAs, togglePinAs } from "../server/util/messageMod.js";
 import { toPollView } from "../server/util/pollView.js";
 import { applyVoteAs } from "../server/util/pollVote.js";
 import { Permissions } from "../server/constants/permissions.js";
+import {
+  sendMessageSchema,
+  createPollSchema,
+  votePollSchema,
+  messageRefSchema,
+} from "../server/util/validation.js";
+import { allowEvent } from "./rateLimit.js";
 import Message from "../server/model/Message.js";
 import Channel from "../server/model/Channel.js";
 import Membership from "../server/model/Membership.js";
 import Community from "../server/model/Community.js";
 import Poll from "../server/model/Poll.js";
 
-const MAX_MESSAGE_LENGTH = 4000;
 const roomFor = (channelId) => `channel:${channelId}`;
+
+// Pull the first zod issue message for the errorMessage/ack payload, falling
+// back to a generic string. Keeps socket validation errors human-readable.
+const firstIssue = (parsed, fallback) =>
+  parsed.error?.issues?.[0]?.message || fallback;
 
 await Connection();
 
@@ -113,12 +124,11 @@ io.on("connection", (socket) => {
   // authoritative: membership is re-checked here, not trusted from the client.
   socket.on("sendMessage", async (data, ack) => {
     try {
-      const channelId = data?.channelId;
-      const text = typeof data?.text === "string" ? data.text.trim() : "";
-      if (!channelId) throw new Error("channelId required");
-      if (!text) throw new Error("Message text required");
-      if (text.length > MAX_MESSAGE_LENGTH)
-        throw new Error("Message too long");
+      if (!allowEvent(socket, "sendMessage"))
+        throw new Error("You're sending messages too fast. Slow down a moment.");
+      const parsed = sendMessageSchema.safeParse(data);
+      if (!parsed.success) throw new Error(firstIssue(parsed, "Invalid message"));
+      const { channelId, text } = parsed.data;
 
       const resolved = await resolveMembership(userId, channelId);
       if (!resolved) throw new Error("Not a member of this channel's community");
@@ -141,7 +151,7 @@ io.on("connection", (socket) => {
         channelId,
         authorId: userId,
         content: encrypt(text),
-        type: data?.type || "text",
+        type: parsed.data.type || "text",
       });
 
       const view = toMessageView(message);
@@ -159,9 +169,10 @@ io.on("connection", (socket) => {
   // shared helper so REST and socket behave identically.
   socket.on("deleteMessage", async (data, ack) => {
     try {
-      const channelId = data?.channelId;
-      const messageId = data?.messageId;
-      if (!channelId || !messageId) throw new Error("channelId and messageId required");
+      const parsed = messageRefSchema.safeParse(data);
+      if (!parsed.success)
+        throw new Error(firstIssue(parsed, "channelId and messageId required"));
+      const { channelId, messageId } = parsed.data;
 
       const resolved = await resolveMembership(userId, channelId);
       if (!resolved) throw new Error("Not a member of this channel's community");
@@ -189,9 +200,10 @@ io.on("connection", (socket) => {
   // Pin/unpin a message (MANAGE_MESSAGES) and broadcast the updated message.
   socket.on("pinMessage", async (data, ack) => {
     try {
-      const channelId = data?.channelId;
-      const messageId = data?.messageId;
-      if (!channelId || !messageId) throw new Error("channelId and messageId required");
+      const parsed = messageRefSchema.safeParse(data);
+      if (!parsed.success)
+        throw new Error(firstIssue(parsed, "channelId and messageId required"));
+      const { channelId, messageId } = parsed.data;
 
       const resolved = await resolveMembership(userId, channelId);
       if (!resolved) throw new Error("Not a member of this channel's community");
@@ -221,16 +233,12 @@ io.on("connection", (socket) => {
   // to the room so everyone sees it live, mirroring the sendMessage flow.
   socket.on("createPoll", async (data, ack) => {
     try {
-      const channelId = data?.channelId;
-      const question = typeof data?.question === "string" ? data.question.trim() : "";
-      const rawOptions = Array.isArray(data?.options) ? data.options : [];
-      const options = rawOptions
-        .map((o) => (typeof o === "string" ? o.trim() : ""))
-        .filter(Boolean);
-      if (!channelId) throw new Error("channelId required");
-      if (!question) throw new Error("Poll question required");
-      if (options.length < 2) throw new Error("At least two options required");
-      if (options.length > 10) throw new Error("Too many options");
+      if (!allowEvent(socket, "createPoll"))
+        throw new Error("You're creating polls too fast. Slow down a moment.");
+      const parsed = createPollSchema.safeParse(data);
+      if (!parsed.success) throw new Error(firstIssue(parsed, "Invalid poll"));
+      const { channelId, question, options, allowMultiple, expiresAt } =
+        parsed.data;
 
       const resolved = await resolveMembership(userId, channelId);
       if (!resolved) throw new Error("Not a member of this channel's community");
@@ -247,8 +255,8 @@ io.on("connection", (socket) => {
         authorId: userId,
         question,
         options: options.map((text) => ({ text, voters: [] })),
-        allowMultiple: Boolean(data?.allowMultiple),
-        expiresAt: data?.expiresAt ? new Date(data.expiresAt) : undefined,
+        allowMultiple: Boolean(allowMultiple),
+        expiresAt: expiresAt ? new Date(expiresAt) : undefined,
       });
 
       const view = toPollView(poll);
@@ -265,11 +273,12 @@ io.on("connection", (socket) => {
   // allowMultiple are enforced authoritatively in the shared helper.
   socket.on("votePoll", async (data, ack) => {
     try {
-      const channelId = data?.channelId;
-      const pollId = data?.pollId;
-      const optionId = data?.optionId;
-      if (!channelId || !pollId || !optionId)
-        throw new Error("channelId, pollId and optionId required");
+      if (!allowEvent(socket, "votePoll"))
+        throw new Error("You're voting too fast. Slow down a moment.");
+      const parsed = votePollSchema.safeParse(data);
+      if (!parsed.success)
+        throw new Error(firstIssue(parsed, "channelId, pollId and optionId required"));
+      const { channelId, pollId, optionId } = parsed.data;
 
       const resolved = await resolveMembership(userId, channelId);
       if (!resolved) throw new Error("Not a member of this channel's community");

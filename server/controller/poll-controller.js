@@ -1,19 +1,7 @@
-import { z } from "zod";
 import Poll from "../model/Poll.js";
 import { toPollView } from "../util/pollView.js";
 import { applyVoteAs } from "../util/pollVote.js";
-
-const createSchema = z.object({
-  question: z.string().min(1).max(300),
-  options: z.array(z.string().trim().min(1).max(100)).min(2).max(10),
-  allowMultiple: z.boolean().optional(),
-  // Optional close time (ISO string). Must be in the future if provided.
-  expiresAt: z.string().datetime().optional(),
-});
-
-const voteSchema = z.object({
-  optionId: z.string().min(1),
-});
+import { pollBodySchema, voteBodySchema } from "../util/validation.js";
 
 // POST /api/channels/:channelId/polls  (requireAuth + requireMembership +
 // requirePermission(CREATE_POLLS)). Creates a poll in the channel. The socket
@@ -21,7 +9,7 @@ const voteSchema = z.object({
 // the created poll for the client to append.
 export const createPoll = async (request, response) => {
   try {
-    const parsed = createSchema.safeParse(request.body);
+    const parsed = pollBodySchema.safeParse(request.body);
     if (!parsed.success) {
       return response
         .status(400)
@@ -64,7 +52,7 @@ export const getPolls = async (request, response) => {
 // event, which broadcasts `pollUpdated` live.
 export const votePoll = async (request, response) => {
   try {
-    const parsed = voteSchema.safeParse(request.body);
+    const parsed = voteBodySchema.safeParse(request.body);
     if (!parsed.success) {
       return response.status(400).json({ error: "optionId is required" });
     }
