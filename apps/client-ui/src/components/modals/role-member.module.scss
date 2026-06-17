@@ -20,8 +20,8 @@
   gap: $space-2;
 
   &.selected {
-    border-color: $color-secondary;
-    box-shadow: 0 0 8px $color-secondary;
+    border-color: $color-accent;
+    box-shadow: 0 0 0 2px $color-accent;
   }
 }
 

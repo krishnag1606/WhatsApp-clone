@@ -1,14 +1,19 @@
 @use '../../styles/tokens' as *;
 
+// Classic RPG dialog box: deep dialog-blue panel, a cream inner frame and an
+// espresso outer outline (the "double border"), with espresso-dark title bars.
 .card {
-  border: $border-width-base solid transparent;
+  position: relative;
+  border: $border-width-base solid $color-border-light;
   background: $color-bg-elevated;
-  border-radius: $border-radius-none;
+  color: $color-text-primary;
+  border-radius: $border-radius-sm;
+  box-shadow: $frame-outer-dark;
   overflow: hidden;
 }
 
 .shadow {
-  box-shadow: 6px 6px 0 #000;
+  box-shadow: $frame-outer-dark, $shadow-chunky;
 }
 
 // ── Title bar ─────────────────────────────────────────────────────────────────
@@ -38,39 +43,33 @@
   padding: $space-5;
 }
 
-// ── Variants ──────────────────────────────────────────────────────────────────
+// ── Variants — title-bar color sets the "chapter" of the dialog ────────────────
 .primary {
-  border-color: $color-primary;
-
   .titleBar {
     background: $color-primary;
-    border-bottom-color: #cc0055;
-    color: #fff;
+    border-bottom-color: $color-border;
+    color: #fff8e7;
   }
 
   .titleIcon { color: $color-accent; }
 }
 
 .cyan {
-  border-color: $color-secondary;
-
   .titleBar {
     background: $color-secondary;
-    border-bottom-color: #00c4cc;
-    color: #000;
+    border-bottom-color: $color-border;
+    color: #fff8e7;
   }
 
-  .titleIcon { color: #000; }
+  .titleIcon { color: $color-accent; }
 }
 
 .yellow {
-  border-color: $color-accent;
-
   .titleBar {
     background: $color-accent;
-    border-bottom-color: #ccb800;
-    color: #000;
+    border-bottom-color: $color-border;
+    color: $color-text-dark;
   }
 
-  .titleIcon { color: #000; }
+  .titleIcon { color: $color-text-dark; }
 }

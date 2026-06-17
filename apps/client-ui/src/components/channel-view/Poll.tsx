@@ -12,12 +12,13 @@ interface PollProps {
   poll: IPoll;
 }
 
-// Neon palette cycled across option bars (cyan → lime → yellow → pink).
+// RPG stat-bar palette cycled across option fills (HP green → MP blue → XP gold
+// → crimson), like a party screen's health/mana bars.
 const BAR_COLORS = [
-  "var(--color-secondary)",
-  "var(--color-success)",
-  "var(--color-accent)",
-  "var(--color-primary)",
+  "#2e7d32", // forest green
+  "#2630c8", // dialog blue
+  "#ffd700", // soft gold
+  "#b71c1c", // crimson
 ];
 
 // A poll rendered inside the message stream. Clicking an option votes over the
@@ -104,11 +105,11 @@ const Poll: React.FC<PollProps> = ({ poll }) => {
               disabled={isClosed}
               style={mine ? { borderColor: color } : undefined}
             >
-              {/* Neon fill bar — only revealed once results are shown. */}
+              {/* Stat fill bar — only revealed once results are shown. */}
               {showResults && (
                 <span
                   className={styles.fill}
-                  style={{ width: `${pct}%`, background: color, boxShadow: `2px 2px 0 ${color}` }}
+                  style={{ width: `${pct}%`, background: color }}
                 />
               )}
               <span className={styles.label}>

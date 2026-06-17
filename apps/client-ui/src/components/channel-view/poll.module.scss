@@ -1,13 +1,15 @@
 @use '../../styles/tokens' as *;
 
-// A poll reads as a distinct Y2K "card" in the message stream: full width, a
-// thick cyan border, and a hard offset shadow so it pops off the chat.
+// A poll reads as a small RPG dialog card in the message stream: dialog-blue
+// panel, cream inner frame, espresso outline — no neon.
 .poll {
   align-self: stretch;
   max-width: 100%;
   background: $color-bg-elevated;
-  border: $border-width-base solid $color-secondary;
-  box-shadow: $shadow-chunky-cyan;
+  color: $color-text-primary;
+  border: $border-width-base solid $color-border-light;
+  border-radius: $border-radius-sm;
+  box-shadow: $frame-outer-dark, $shadow-chunky;
   padding: $space-3;
 }
 
@@ -20,8 +22,7 @@
 
 .headIcon {
   flex-shrink: 0;
-  color: $color-secondary;
-  filter: drop-shadow(0 0 4px $color-secondary-glow);
+  color: $color-accent;
 }
 
 .question {
@@ -37,8 +38,9 @@
   gap: $space-2;
 }
 
-// Each option is a clickable row. The neon fill bar is an absolutely-positioned
-// layer behind the label so the percentage "fills up" the row.
+// Each option is a clickable "stat bar" track: a dark recessed slot with a thick
+// black border. The fill (set inline to the option's hue) is a solid RPG-style
+// health/mana bar that grows from the left.
 .option {
   position: relative;
   display: flex;
@@ -46,22 +48,24 @@
   justify-content: space-between;
   gap: $space-2;
   width: 100%;
-  min-height: 34px;
+  min-height: 36px;
   padding: $space-2 $space-3;
-  background: $color-bg-base;
-  border: $border-width-thin solid $color-border-dim;
+  background: $color-wood-dark;
+  border: $border-width-thin solid $color-border;
+  border-radius: $border-radius-sm;
+  box-shadow: $bevel-recessed;
   cursor: pointer;
   overflow: hidden;
   text-align: left;
   transition: $transition-base;
 
   &:hover:not(.closed) {
-    border-color: $color-secondary;
+    border-color: $color-accent;
   }
 }
 
 .mine {
-  // Border color set inline to the option's neon hue.
+  // Border color set inline to the option's hue.
   border-width: $border-width-base;
 }
 
@@ -69,13 +73,14 @@
   cursor: default;
 }
 
-// The fill bar — blocky, no blur, hard offset shadow in the option's hue.
+// The fill bar — a solid stat bar, no blur. Sits behind the label.
 .fill {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
-  opacity: 0.28;
+  opacity: 0.85;
+  border-right: 2px solid $color-border;
   transition: width $transition-base;
   pointer-events: none;
 }
@@ -89,11 +94,12 @@
   font-family: $font-body;
   font-size: $font-size-base;
   color: $color-text-primary;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
   word-break: break-word;
 }
 
 .check {
-  color: $color-secondary;
+  color: $color-accent;
   font-weight: bold;
 }
 
@@ -103,7 +109,8 @@
   flex-shrink: 0;
   font-family: $font-body;
   font-size: $font-size-sm;
-  color: $color-text-secondary;
+  color: $color-text-primary;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
 }
 
 .foot {
@@ -112,7 +119,7 @@
   margin-top: $space-3;
   font-family: $font-body;
   font-size: $font-size-sm;
-  color: $color-text-muted;
+  color: $color-text-secondary;
 }
 
 .closedTag {
@@ -120,5 +127,5 @@
 }
 
 .hint {
-  color: $color-secondary;
+  color: $color-accent;
 }

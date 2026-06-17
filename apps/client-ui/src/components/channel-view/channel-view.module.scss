@@ -1,10 +1,12 @@
 @use '../../styles/tokens' as *;
 
+// The chat is one long scrolling RPG dialog box: dialog-blue field, cream text.
 .view {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  background: $color-bg-surface;
 }
 
 .header {
@@ -12,6 +14,7 @@
   align-items: center;
   gap: $space-2;
   padding: $space-4 $space-4;
+  background: $color-wood;
   border-bottom: $border-base;
   font-family: $font-display;
   font-size: $font-size-sm;
@@ -19,18 +22,17 @@
 }
 
 .hash {
-  color: $color-text-muted;
+  color: $color-accent;
 }
 
-// Header speaker icon for announcement channels — neon yellow with a soft glow.
+// Header speaker icon for announcement channels — soft gold, no glow.
 .announceIcon {
   flex-shrink: 0;
-  color: $color-accent;
-  filter: drop-shadow(0 0 4px $color-accent-glow);
+  color: $color-warning;
 }
 
 .name {
-  color: $color-primary;
+  color: $color-accent;
 }
 
 /* Message list */
@@ -50,39 +52,42 @@
   justify-content: center;
   font-family: $font-body;
   font-size: $font-size-base;
-  color: $color-text-muted;
+  color: $color-text-secondary;
 }
 
+// Message bubbles read as small dialog boxes with a cream frame + dark outline.
 .message {
   max-width: 70%;
   align-self: flex-start;
   background: $color-bubble-received;
-  border: $border-width-thin solid $color-border-dim;
+  color: $color-text-primary;
+  border: $border-width-thin solid $color-border-light;
+  border-radius: $border-radius-sm;
+  box-shadow: $frame-outer-dark;
   padding: $space-2 $space-3;
 }
 
 .mine {
   align-self: flex-end;
   background: $color-bubble-sent;
-  border-color: $color-primary;
+  border-color: $color-border-light;
 }
 
-// Announcement flair: a thick neon-yellow border, a faint yellow tint, and a
-// hard offset glow so broadcasts read as "important" at a glance. Spans the full
-// width regardless of author so announcements feel like posts, not chat bubbles.
+// Announcement flair: a thick gold frame with a faint gold tint — a proclamation
+// pinned to the board. Spans the full width regardless of author.
 .announcement {
   max-width: 100%;
   align-self: stretch;
   border: $border-width-base solid $color-accent;
-  background: rgba(255, 230, 0, 0.08);
-  box-shadow: $glow-accent;
+  background: rgba(255, 215, 0, 0.12);
+  box-shadow: $shadow-chunky;
 }
 
 // Tiny megaphone badge next to the timestamp inside announcement messages.
 .announceBadge {
   display: inline-flex;
   align-items: center;
-  color: $color-accent;
+  color: $color-warning;
 }
 
 .meta {
@@ -112,13 +117,13 @@
   cursor: pointer;
   font-family: $font-body;
   font-size: $font-size-sm;
-  color: $color-text-muted;
+  color: $color-text-secondary;
   background: transparent;
   border: none;
   padding: 0 $space-1;
 
   &:hover {
-    color: $color-primary;
+    color: $color-accent;
   }
 }
 
@@ -127,16 +132,17 @@
   align-items: center;
   gap: $space-2;
   padding: $space-2 $space-4;
-  border-bottom: $border-width-thin solid $color-border-dim;
+  background: $color-wood;
+  border-bottom: $border-width-thin solid $color-border;
   font-family: $font-body;
   font-size: $font-size-sm;
-  color: $color-warning;
+  color: $color-accent;
 }
 
 .author {
   font-family: $font-display;
   font-size: $font-size-xs;
-  color: $color-secondary;
+  color: $color-accent;
   max-width: 180px;
   white-space: nowrap;
   overflow: hidden;
@@ -146,7 +152,8 @@
 .time {
   font-family: $font-body;
   font-size: $font-size-sm;
-  color: $color-text-muted;
+  color: $color-text-secondary;
+  opacity: 0.8;
 }
 
 .text {
@@ -161,31 +168,34 @@
   color: $color-warning;
 }
 
-/* Input bar */
+/* Input bar — a naming-screen field docked to a wooden ledge */
 .inputBar {
   display: flex;
   gap: $space-3;
   padding: $space-3 $space-4;
   border-top: $border-base;
-  background: $color-bg-surface;
+  background: $color-wood;
 }
 
 .input {
   flex: 1;
   font-family: $font-body;
   font-size: $font-size-base;
-  color: $color-text-primary;
-  background: $color-bg-base;
-  border: $border-thin;
+  color: $color-text-dark;
+  background: $color-parchment;
+  border: $border-base;
+  border-radius: $border-radius-sm;
+  box-shadow: $bevel-recessed;
   padding: $space-2 $space-3;
   outline: none;
 
   &:focus {
-    box-shadow: $glow-secondary;
-    border-color: $color-secondary;
+    border-color: $color-accent;
+    box-shadow: $bevel-recessed, 0 0 0 2px $color-accent;
   }
 
   &::placeholder {
-    color: $color-text-muted;
+    color: $color-text-dark-soft;
+    opacity: 0.7;
   }
 }

@@ -1,32 +1,78 @@
 @use '../../styles/tokens' as *;
 
+// The sidebar is a "Quest Log" page: a parchment sheet with a wooden edge.
+// Because the background is light, text colors are espresso/brown (overriding the
+// global cream tokens that target dark panes).
 .sidebar {
   width: 240px;
   flex-shrink: 0;
-  background: $color-bg-surface;
+  background: $color-parchment;
   border-right: $border-base;
   display: flex;
   flex-direction: column;
+  color: $color-text-dark;
 }
 
 .header {
   font-family: $font-display;
   font-size: $font-size-xs;
-  color: $color-primary;
+  color: $color-text-dark;
+  background: $color-parchment-dim;
   padding: $space-4 $space-3;
-  border-bottom: $border-thin;
+  border-bottom: $border-base;
   line-height: $line-height-display;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.manageBar {
+// Management menu — a row of square wooden "tool slots" pinned above the footer,
+// like a JRPG party/quests/log menu. Each slot stacks a pixel icon over a caption.
+.toolBar {
   display: flex;
-  flex-wrap: wrap;
   gap: $space-2;
   padding: $space-2 $space-3;
-  border-bottom: $border-thin;
+  border-top: $border-base;
+  background: $color-parchment-dim;
+}
+
+.tool {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  padding: $space-2 $space-1;
+  background: $color-parchment;
+  color: $color-text-dark;
+  border: $border-width-thin solid $color-border;
+  border-radius: $border-radius-sm;
+  box-shadow: $bevel-raised;
+  transition: $transition-base;
+
+  &:hover {
+    background: #fffaf0;
+    box-shadow: $bevel-raised, 0 0 0 2px $color-accent;
+  }
+
+  &:active {
+    transform: translateY(2px);
+    box-shadow: $bevel-recessed;
+  }
+}
+
+.toolIcon {
+  color: $color-text-dark;
+  flex-shrink: 0;
+}
+
+.toolLabel {
+  font-family: $font-display;
+  font-size: 7px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $color-text-dark-soft;
 }
 
 .inviteBar {
@@ -47,6 +93,7 @@
   gap: $space-1;
 }
 
+// Each channel is a quest-log entry row.
 .channel {
   display: flex;
   align-items: center;
@@ -56,54 +103,65 @@
   cursor: pointer;
   font-family: $font-body;
   font-size: $font-size-base;
-  color: $color-text-secondary;
+  color: $color-text-dark-soft;
   background: transparent;
   border: $border-width-thin solid transparent;
+  border-radius: $border-radius-sm;
   padding: $space-2 $space-3;
   transition: $transition-base;
 
   &:hover {
-    color: $color-text-primary;
+    color: $color-text-dark;
+    background: $color-parchment-dim;
     border-color: $color-border-dim;
   }
 }
 
 .hash {
-  color: $color-text-muted;
+  color: $color-text-dark-soft;
+  opacity: 0.7;
 }
 
-// Announcement channels read as "broadcast" — tint the speaker icon neon yellow
-// so they stand apart from the muted "#" of text channels.
+// Announcement channels read as "proclamations" — tint the speaker icon gold.
 .announceIcon {
   flex-shrink: 0;
-  color: $color-accent;
+  color: $color-warning;
 }
 
+// Active quest: a carved wooden tab with cream lettering.
 .active {
-  color: $color-secondary;
-  border-color: $color-secondary;
-  background: $color-bg-elevated;
+  color: #fff8e7;
+  border-color: $color-border;
+  background: $color-wood-light;
+
+  &:hover {
+    color: #fff8e7;
+    background: $color-wood-light;
+  }
+
+  .hash { color: $color-accent; opacity: 1; }
 }
 
 .addChannel {
   cursor: pointer;
   font-family: $font-body;
   font-size: $font-size-base;
-  color: $color-success;
+  color: $color-secondary;
   background: transparent;
   border: none;
   text-align: left;
   padding: $space-2 $space-3;
 
   &:hover {
-    text-shadow: 0 0 8px $color-success;
+    color: #1f5e23;
+    text-shadow: none;
   }
 }
 
 .empty {
   font-family: $font-body;
   font-size: $font-size-sm;
-  color: $color-text-muted;
+  color: $color-text-dark-soft;
   padding: $space-3;
 }
 
@@ -113,13 +171,14 @@
   justify-content: space-between;
   gap: $space-2;
   padding: $space-3;
-  border-top: $border-thin;
+  border-top: $border-base;
+  background: $color-parchment-dim;
 }
 
 .userName {
   font-family: $font-body;
   font-size: $font-size-base;
-  color: $color-text-secondary;
+  color: $color-text-dark;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
